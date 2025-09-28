@@ -45,6 +45,7 @@ void QuantumCircuit::X(int target_qubit) {
             swap(state_vector[i+j], state_vector[i+j+block_size]); //X gate swaps amplitudes
         }
     }
+    addCircuit(target_qubit, 'X');
 }
 
 void QuantumCircuit::H(int target_qubit){
@@ -64,6 +65,7 @@ void QuantumCircuit::H(int target_qubit){
             state_vector[i+j+block_size] = inv_sq_2 * (a-b);
         }
     }
+    addCircuit(target_qubit, 'H');
 }
 
 void QuantumCircuit::Z(int target_qubit){
@@ -76,6 +78,7 @@ void QuantumCircuit::Z(int target_qubit){
             state_vector[i] *= -1.0;
         }
     }
+    addCircuit(target_qubit, 'Z');
 }
 
 void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
@@ -89,6 +92,8 @@ void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
             if(i < (i^target_mask)) swap(state_vector[i], state_vector[i^target_mask]);
         }
     }
+    addCircuit(control_qubit, 'C');
+    addCircuit(target_qubit, '*');
 }
 
 vector<string> QuantumCircuit::generateBasisStates(int n){
