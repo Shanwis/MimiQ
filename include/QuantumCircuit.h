@@ -28,7 +28,7 @@ public:
     void X(int target_qubit);
     void Z(int target_qubit);
     void CNOT(int control_qubit, int target_qubit);
-    void addCircuit(int qubit, char gate);
+    void addCircuit(int qubit, char gate, int t_qubit);
 
     //measurement
     void measure();

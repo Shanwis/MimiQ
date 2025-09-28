@@ -21,9 +21,10 @@ QuantumCircuit::QuantumCircuit(int n) :
     state_vector[0] = 1.0; //Initialize the system to first state.
 }
 
-void QuantumCircuit::addCircuit(int qubit, char gate){
+void QuantumCircuit::addCircuit(int qubit, char gate, int t_qubit = -1){
     for(int i=0; i<qubit_count; i++){
-        if(i == qubit) circuit[i] += gate;
+        if(i == qubit){ circuit[i] += gate; }
+        else if (i==t_qubit){ circuit[i] += "*"; }
         else circuit[i] += "-";
     }
 }
@@ -92,8 +93,7 @@ void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
             if(i < (i^target_mask)) swap(state_vector[i], state_vector[i^target_mask]);
         }
     }
-    addCircuit(control_qubit, 'C');
-    addCircuit(target_qubit, '*');
+    addCircuit(control_qubit, 'C', target_qubit);
 }
 
 vector<string> QuantumCircuit::generateBasisStates(int n){
