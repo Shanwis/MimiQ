@@ -2,6 +2,7 @@
 #include "../include/QuantumCircuit.h"
 
 int main() {
+
     std::cout << "--- Creating a 2-Qubit Bell State |Φ+> ---" << std::endl;
 
     QuantumCircuit qc(2);
