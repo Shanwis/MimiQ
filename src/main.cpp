@@ -18,17 +18,30 @@ using namespace std;
 
 //     return 0;
 // }
+void updateCircuit(vector<vector<char>>& circuit, char gate, int bit) {
+    for(int i=0;i<circuit.size();i++) { 
+        if(i != bit) circuit[i].push_back('-');
+        else circuit[i].push_back(gate);
+    }
+}
 
-int main() {
-    cout << "----------------QUANTUM SIMULATOR-----------\n";
-    cout << "Enter number of Qubits: ";
-    int n;
-    cin >> n;
-    char choice = 'n';
-    QuantumCircuit qc(n);
+void displayCircuit(vector<vector<char>>& circuit) {
+    for(int i=0;i<circuit.size();i++) {
+        cout << endl;
+        for(int j=0;j<circuit[i].size();j++){
+            if(j>0){
+                cout << circuit[i][j] << " ";
+            }
+            else{
+                cout << "|" << i << ">  " << circuit[i][j] << " ";
+            }
+        }
+    }
+    cout << endl;
+}
 
-    while(choice == 'n') {
-        cout << endl << "Enter the aphabet of the Gate you wish to apply.\n";
+void applyGate(QuantumCircuit& qc, int n, vector<vector<char>>& circuit) {
+    cout << endl << "Enter the aphabet of the Gate you wish to apply.\n";
         cout << "X GATE (X)\n";
         cout << "Z GATE (Z)\n";
         cout << "HADAMARD GATE (H)\n";
@@ -39,25 +52,46 @@ int main() {
             case 'X': 
             case 'Z':
             case 'H': cout << endl; break;
-            default: cout << "Invalid Gate!!\n"; continue;
+            default: cout << "Invalid Gate!!\n"; return;
         }
         int bit;
         cout << "Enter the qubit number: ";
         cin  >> bit;
+        cout << endl;
         if(bit > n) {
             cout << "Entered number exeeded number of qubits!!";
-            continue;
+            return;
         }
 
         switch(toupper(gate)) {
-            case 'X': qc.X(bit); break;
-            case 'Z': qc.Z(bit); break;  
-            case 'H': qc.H(bit); break;
+            case 'X': qc.X(bit); updateCircuit(circuit, 'X', bit); break;
+            case 'Z': qc.Z(bit); updateCircuit(circuit, 'Z', bit); break;  
+            case 'H': qc.H(bit); updateCircuit(circuit, 'H', bit); break;
         }
+}
 
-        cout << "Measure Qubits?(y/n): ";
-        cin >> choice;
-        if(choice == 'y') qc.measure();
+int main() {
+    cout << "-------QUANTUM SIMULATOR-------\n";
+    cout << "Enter number of Qubits: ";
+    int n;
+    cin >> n;
+    char choice = 'y';
+    QuantumCircuit qc(n);
+    vector<vector<char>> circuit(n);
+
+    while(choice == 'y') {
+        cout << "1. Apply Gate operation\n";
+        cout << "2. Measure states\n";
+        cout << "3.Display Circuit\n";
+        cout << "Your choice: ";
+        int ch;
+        cin >> ch;
+        
+        switch(ch) {
+            case 1: applyGate(qc, n, circuit); break;
+            case 2: qc.measure(); choice = 'n'; break;
+            case 3: displayCircuit(circuit);
+        }
     }
 }
 
