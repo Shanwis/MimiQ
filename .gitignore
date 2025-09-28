@@ -1,1 +1,6 @@
-*.exe
+# IDE and editor specific files
+.vscode/
+
+# Build artifacts from the Makefile
+*.o
+Quantum_simulator
