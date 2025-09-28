@@ -33,7 +33,7 @@ void displayCircuit(vector<vector<char>>& circuit) {
                 cout << circuit[i][j] << " ";
             }
             else{
-                cout << "|" << i << ">  " << circuit[i][j] << " ";
+                cout << "|0>  " << circuit[i][j] << " ";
             }
         }
     }
