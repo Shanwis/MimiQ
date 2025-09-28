@@ -1,7 +1,7 @@
 SRC = src/QuantumCircuit.cpp src/main.cpp
 CC = g++
 CFLAG = -Iinclude
-OBJ = $(SRC:.c=.o)
+OBJ = $(SRC:.cpp=.o)
 TARGET = Quantum_simulator
 
 .PHONY: all clean run
@@ -11,7 +11,7 @@ all:$(TARGET)
 $(TARGET):$(OBJ)
 	$(CC) $(OBJ) -o $(TARGET)
 
-%.o: %.c
+%.o: %.cpp
 	$(CC) $(CFLAGS) -c $< -o $@
 
 run:$(TRAGET)
