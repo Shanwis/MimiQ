@@ -1,8 +1,6 @@
+
 #include "../include/QuantumCircuit.h" 
 #include "../include/matplotlibcpp.h"
-#include <iostream>
-#include <ctype.h>
-using namespace std;
 
 namespace plt = matplotlibcpp;
 // int main() {
@@ -25,21 +23,6 @@ void updateCircuit(vector<vector<char>>& circuit, char gate, int bit) {
         if(i != bit) circuit[i].push_back('-');
         else circuit[i].push_back(gate);
     }
-}
-
-void displayCircuit(vector<vector<char>>& circuit) {
-    for(int i=0;i<circuit.size();i++) {
-        cout << endl;
-        for(int j=0;j<circuit[i].size();j++){
-            if(j>0){
-                cout << circuit[i][j] << " ";
-            }
-            else{
-                cout << "|" << i << ">  " << circuit[i][j] << " ";
-            }
-        }
-    }
-    cout << endl;
 }
 
 void displayPlot(){
@@ -103,21 +86,10 @@ void applyGate(QuantumCircuit& qc, int n, vector<vector<char>>& circuit) {
             return;
         }
 
-        switch(toupper(gate)) {
-            case 'X': qc.X(bit); updateCircuit(circuit, 'X', bit); break;
-            case 'Z': qc.Z(bit); updateCircuit(circuit, 'Z', bit); break;  
-            case 'H': qc.H(bit); updateCircuit(circuit, 'H', bit); break;
-        }
-}
 
-int main() {
-    cout << "-------QUANTUM SIMULATOR-------\n";
-    cout << "Enter number of Qubits: ";
-    int n;
-    cin >> n;
-    char choice = 'y';
-    QuantumCircuit qc(n);
-    vector<vector<char>> circuit(n);
+    qc.CNOT(0, 1);
+
+    qc.printState();
 
     while(choice == 'y') {
         cout << "1. Apply Gate operation\n";
@@ -135,3 +107,5 @@ int main() {
     }
 }
 
+    return 0;
+}
