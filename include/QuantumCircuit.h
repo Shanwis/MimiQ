@@ -2,7 +2,7 @@
 #define QUANTUMCIRCUIT_H
 
 #include<vector>
-#include<map>
+#include<complex>
 #include<string>
 
 using namespace std;
@@ -11,28 +11,31 @@ class QuantumCircuit {
 private:
     //member var
     int qubit_count;
-    map<int, vector<vector<double>>> mp;
+    vector<complex<double>> state_vector;
 
-    //Gate matrix
-    vector<vector<double>> NOT_MATRIX;
-    vector<vector<double>> HADAMARD_MATRIX;
-    vector<vector<double>> Z_MATRIX;
+    //Helper function to generate labels like "00", "01", etc
+    vector<string> generateBasisStates(int n);
 
-    //Private helper functions
-    vector<vector<double>> matrixMultiply(const vector<vector<double>>& A, const vector<vector<double>>& B);
-    vector<vector<double>> tensorProduct(const vector<vector<double>>& A, const vector<vector<double>>& B);
+    //Circuit
+    vector<string> circuit;
 
 public:
     //Constructor
     QuantumCircuit(int n);
 
     //Public gate methods
-    void H(int n);
-    void X(int n);
-    void Z(int n);
+    void H(int target_qubit);
+    void X(int target_qubit);
+    void Z(int target_qubit);
+    void CNOT(int control_qubit, int target_qubit);
+    void addCircuit(int qubit, char gate);
 
     //measurement
     void measure();
+
+    // Helper to print the current state vector
+    void printState();
+    void printCircuit();
 };
 
 #endif

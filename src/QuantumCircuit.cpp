@@ -1,4 +1,5 @@
 #include <iostream>
+#include<algorithm>
 #include <cmath>
 #include <iomanip>
 #include <stdexcept>
@@ -7,81 +8,124 @@ using namespace std;
 
 // Constructor with member initializer list
 QuantumCircuit::QuantumCircuit(int n) :
-    qubit_count(n),
-    NOT_MATRIX({ {0.0, 1.0}, {1.0, 0.0} }),
-    HADAMARD_MATRIX({ {1.0 / sqrt(2), 1.0 / sqrt(2)}, {1.0 / sqrt(2), -1.0 / sqrt(2)} }),
-    Z_MATRIX({ {1.0, 0.0}, {0.0, -1.0} })
+    qubit_count(n)
 {
-    vector<vector<double>> initial_qubit(2, vector<double>(1, 0.0));
-    initial_qubit[0][0] = 1.0; // Initialize each qubit to the |0> state
+    if(n<=0) {
+        throw invalid_argument("Number of qubits must be positive.");
+    }
 
-    for (int i = 0; i < n; i++) {
-        mp[i] = initial_qubit;
+    size_t state_size = 1<<n; //size is 2^n
+    state_vector.resize(state_size,0);
+    circuit.resize(qubit_count, "");
+
+    state_vector[0] = 1.0; //Initialize the system to first state.
+}
+
+void QuantumCircuit::addCircuit(int qubit, char gate){
+    for(int i=0; i<qubit_count; i++){
+        if(i == qubit) circuit[i] += gate;
+        else circuit[i] += "-";
     }
 }
 
-// Gate implementations
+void QuantumCircuit::printCircuit(){
+    for(int i=0; i<qubit_count; i++){
+        cout << i << " " << circuit[i] << "\n";
+    }
+}
+
 void QuantumCircuit::X(int target_qubit) {
-    mp[target_qubit] = matrixMultiply(NOT_MATRIX, mp[target_qubit]);
-}
+    if(target_qubit >= qubit_count || target_qubit < 0) throw out_of_range("Qubit index out of range.");
 
-void QuantumCircuit::H(int target_qubit) {
-    mp[target_qubit] = matrixMultiply(HADAMARD_MATRIX, mp[target_qubit]);
-}
+    size_t stride = 1 << (target_qubit + 1);
+    size_t block_size = 1 << target_qubit;
 
-void QuantumCircuit::Z(int target_qubit) {
-    mp[target_qubit] = matrixMultiply(Z_MATRIX, mp[target_qubit]);
-}
-
-void QuantumCircuit::measure() {
-    if (qubit_count != 2) {
-        cerr << "Error: Measurement is currently implemented for 2-qubit systems only." << endl;
-        return;
+    for(size_t i=0; i<state_vector.size(); i+=stride){
+        for(size_t j=0; j<block_size; j++){
+            swap(state_vector[i+j], state_vector[i+j+block_size]); //X gate swaps amplitudes
+        }
     }
-    
-    vector<vector<double>> combined_state = tensorProduct(mp[0], mp[1]);
-    vector<string> basis_states = {"00", "01", "10", "11"};
+}
+
+void QuantumCircuit::H(int target_qubit){
+    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
+
+    const complex<double> inv_sq_2 = 1.0 / sqrt(2.0);
+    size_t stride = 1 << (target_qubit + 1);
+    size_t block_size = 1 << target_qubit;
+
+    for(size_t i = 0; i<state_vector.size(); i+=stride){
+        for(size_t j=0; j<block_size; ++j) {
+
+            //applying Hadamard on relevent pairs
+            complex<double> a = state_vector[i+j];
+            complex<double> b = state_vector[i+j+block_size];
+            state_vector[i+j] = inv_sq_2 * (a+b);
+            state_vector[i+j+block_size] = inv_sq_2 * (a-b);
+        }
+    }
+}
+
+void QuantumCircuit::Z(int target_qubit){
+    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
+
+    size_t mask = 1<< target_qubit;
+    for(size_t i = 0; i < state_vector.size(); ++i){
+        if(i&mask != 0){
+            //apply -1 phase
+            state_vector[i] *= -1.0;
+        }
+    }
+}
+
+void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
+    if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
+
+    size_t control_mask = 1 << control_qubit;
+    size_t target_mask = 1 << target_qubit;
+
+    for(size_t i=0; i<state_vector.size(); ++i) {
+        if((i&control_mask) != 0){
+            if(i < (i^target_mask)) swap(state_vector[i], state_vector[i^target_mask]);
+        }
+    }
+}
+
+vector<string> QuantumCircuit::generateBasisStates(int n){
+    vector<string> basis_states;
+    size_t num_states = 1<<n;
+    for(size_t i = 0; i<num_states; i++){
+        string basis = "";
+        int temp = i;
+        for(int j=0; j<n; j++){
+            basis += to_string(temp%2);
+            temp/=2;
+        }
+        reverse(basis.begin(), basis.end());
+        basis_states.push_back(basis);
+    }
+    return basis_states;
+}
+
+
+void QuantumCircuit::measure(){
+    vector<string> basis_states = generateBasisStates(qubit_count);
 
     cout << fixed << setprecision(6);
-    cout << "--- Measurement Results ---" << endl;
-    for (size_t i = 0; i < combined_state.size(); i++) {
-        double amplitude = combined_state[i][0];
-        double probability = amplitude * amplitude;
-        cout << "Probability of |" << basis_states[i] << ">: " << probability << endl;
+    cout << qubit_count << "-Qubit Measurement Results" << "\n";
+    for(size_t i = 0; i<state_vector.size(); ++i) {
+        double prob = norm(state_vector[i]);
+        cout << "Probability of |" << basis_states[i] << ">: " << prob << "\n";
     }
-    cout << "-------------------------" << endl;
+    cout << "----------------------------\n";
 }
 
-// Private helper function implementations
-vector<vector<double>> QuantumCircuit::matrixMultiply(const vector<vector<double>>& A, const vector<vector<double>>& B) {
-    int m = A.size();
-    int n = A[0].size();
-    int n2 = B.size();
-    int p = B[0].size();
-
-    if (n != n2) {
-        throw invalid_argument("Matrix dimensions are not compatible for multiplication.");
+void QuantumCircuit::printState() {
+    cout << "Current State Vector" << "\n";
+    vector<string>basis_states = generateBasisStates(qubit_count);
+    for(size_t i=0; i<state_vector.size(); i++){
+        cout << "|" << basis_states[i] << "> :" << state_vector[i] << "\n";
     }
-
-    vector<vector<double>> result(m, vector<double>(p, 0.0));
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < p; j++) {
-            for (int k = 0; k < n; k++) {
-                result[i][j] += A[i][k] * B[k][j];
-            }
-        }
-    }
-    return result;
 }
 
-vector<vector<double>> QuantumCircuit::tensorProduct(const vector<vector<double>>& A, const vector<vector<double>>& B) {
-    int m = A.size();
-    int n = B.size();
-    vector<vector<double>> result(m * n, vector<double>(1, 0.0));
-    for (int i = 0; i < m; i++) {
-        for (int j = 0; j < n; j++) {
-            result[i * n + j][0] = A[i][0] * B[j][0];
-        }
-    }
-    return result;
-}
+
