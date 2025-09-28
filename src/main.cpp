@@ -9,9 +9,9 @@ int main() {
     qc.H(0);
 
     qc.CNOT(0, 1);
-    
+
     qc.printState();
-    
+
     qc.measure();
 
     return 0;
