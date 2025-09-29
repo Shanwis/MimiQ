@@ -27,6 +27,8 @@ public:
     void H(int target_qubit);
     void X(int target_qubit);
     void Z(int target_qubit);
+    void Y(int target_qubit);
+    void S(int target_qubit);
     void CNOT(int control_qubit, int target_qubit);
     void addCircuit(int qubit, char gate, int t_qubit);
 

@@ -23,9 +23,10 @@ QuantumCircuit::QuantumCircuit(int n) :
 
 void QuantumCircuit::addCircuit(int qubit, char gate, int t_qubit = -1){
     for(int i=0; i<qubit_count; i++){
-        if(i == qubit){ circuit[i] += gate; }
-        else if (i==t_qubit){ circuit[i] += "*"; }
-        else circuit[i] += "-";
+        if(i == qubit){ circuit[i] += "-[" + string(1,gate) + "]--"; }
+        else if (i==t_qubit){ circuit[i] += "-[*]-"; }
+        else if (i>qubit && i<t_qubit) { circuit[i] += "--+--";}
+        else circuit[i] += "-----";
     }
 }
 
@@ -77,6 +78,40 @@ void QuantumCircuit::Z(int target_qubit){
         if(i&mask != 0){
             //apply -1 phase
             state_vector[i] *= -1.0;
+        }
+    }
+    addCircuit(target_qubit, 'Z');
+}
+
+const complex<double> I(0.0,1.0);
+
+void QuantumCircuit::Y(int target_qubit){
+    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
+    
+    size_t stride = 1 << (target_qubit + 1);
+    size_t block_size = 1 << target_qubit;
+
+    for(size_t i = 0; i<state_vector.size(); i+=stride){
+        for(size_t j=0; j<block_size; ++j) {
+
+            //applying Y on relevent pairs
+            complex<double> a = state_vector[i+j];
+            complex<double> b = state_vector[i+j+block_size];
+            state_vector[i+j] = -I * b;
+            state_vector[i+j+block_size] = I * a;
+        }
+    }
+    addCircuit(target_qubit, 'Y');
+}
+
+
+void QuantumCircuit::S(int target_qubit){
+    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
+    size_t mask = 1<< target_qubit;
+    for(size_t i = 0; i < state_vector.size(); ++i){
+        if(i&mask != 0){
+            //apply phase of I
+            state_vector[i] *= I;
         }
     }
     addCircuit(target_qubit, 'Z');
