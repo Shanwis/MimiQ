@@ -24,7 +24,7 @@ QuantumCircuit::QuantumCircuit(int n) :
 
 void QuantumCircuit::addCircuit(int qubit, char gate, int t_qubit = -1){
     for(int i=0; i<qubit_count; i++){
-        if(i == qubit){ circuit[i] += "-[" + string(1,gate) + "]--"; }
+        if(i == qubit){ circuit[i] += "-[" + string(1,gate) + "]-"; }
         else if (i==t_qubit){ circuit[i] += "-[*]-"; }
         else if (i>qubit && i<t_qubit) { circuit[i] += "--+--";}
         else circuit[i] += "-----";

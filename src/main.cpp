@@ -64,9 +64,9 @@ int main() {
         cout << "\n--- Menu ---\n";
         cout << "1. Apply Gate\n";
         cout << "2. Display Circuit\n";
-        cout << "3. Measure State\n";
+        cout << "3. Measure State(Collapses)\n";
         cout << "4. Print State Vector (Debug)\n";
-        cout << "5. Print probabilities\n";
+        cout << "5. Print probabilities (Debug)\n";
         cout << "6. Exit\n";
         cout << "Your choice: ";
 
