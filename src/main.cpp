@@ -64,9 +64,10 @@ int main() {
         cout << "\n--- Menu ---\n";
         cout << "1. Apply Gate\n";
         cout << "2. Display Circuit\n";
-        cout << "3. Measure Final State\n";
+        cout << "3. Measure State\n";
         cout << "4. Print State Vector (Debug)\n";
-        cout << "5. Exit\n";
+        cout << "5. Print probabilities\n";
+        cout << "6. Exit\n";
         cout << "Your choice: ";
 
         int choice;
@@ -87,13 +88,17 @@ int main() {
                 qc.printCircuit();
                 break;
             case 3:
-                cout << "\nMeasuring the final state..." << endl;
-                qc.measure();
+                cout << "\nMeasuring the current state." << endl;
+                qc.collapse();
                 break;
             case 4:
                 qc.printState();
                 break;
             case 5:
+                cout << "\nProbabilities of states." << endl;
+                qc.measureProbabilities();
+                break;
+            case 6:
                 running = false;
                 cout << "Exiting simulator. Goodbye!" << endl;
                 break;

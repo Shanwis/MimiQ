@@ -33,11 +33,12 @@ public:
     void addCircuit(int qubit, char gate, int t_qubit);
 
     //measurement
-    void measure();
+    void collapse();
 
     // Helper to print the current state vector
     void printState();
     void printCircuit();
+    void measureProbabilities();
 };
 
 #endif

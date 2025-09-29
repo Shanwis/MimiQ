@@ -1,5 +1,6 @@
 #include <iostream>
-#include<algorithm>
+#include <algorithm>
+#include <random>
 #include <cmath>
 #include <iomanip>
 #include <stdexcept>
@@ -147,8 +148,25 @@ vector<string> QuantumCircuit::generateBasisStates(int n){
     return basis_states;
 }
 
+void QuantumCircuit::collapse(){
+    vector<string> basis_states = generateBasisStates(qubit_count);
+    vector<double> weights;
+    for(auto &a:state_vector){
+        weights.push_back(norm(a));
+    }
 
-void QuantumCircuit::measure(){
+    //Getting the state which it would be at
+    static random_device rd;
+    static mt19937 gen(rd());
+    discrete_distribution<> dist(weights.begin(), weights.end());
+    int index = dist(gen);
+    
+    fill(state_vector.begin(), state_vector.end(), 0.0);
+    state_vector[index] = 1.0;
+    cout << basis_states[index] << "\n";
+}
+
+void QuantumCircuit::measureProbabilities(){
     vector<string> basis_states = generateBasisStates(qubit_count);
 
     cout << fixed << setprecision(6);
