@@ -47,6 +47,13 @@ Download and install MSYS2 from the official website: https://www.msys2.org/
 After installation, open the MSYS2 MINGW64 shell from the Start Menu.
 
 Install the make and g++ toolchain by running the following command in the shell:
+```
+pacman -S --needed base-devel mingw-w64-x86_64-toolchain
+```
+
+(Optional but recommended) Add the MinGW-w64 bin folder to your Windows PATH environment variable to run make and g++ from any terminal (like PowerShell or Command Prompt). The path is typically C:\msys64\mingw64\bin.
+
+
 
 ### Build and Run
 1.  **Clone the repository:**
