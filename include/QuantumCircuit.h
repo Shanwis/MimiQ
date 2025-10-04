@@ -39,6 +39,8 @@ public:
     void printState();
     void printCircuit();
     void measureProbabilities();
+
+    void displayGraph();
 };
 
 #endif
