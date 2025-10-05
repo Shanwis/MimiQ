@@ -67,7 +67,8 @@ int main() {
         cout << "3. Measure State(Collapses)\n";
         cout << "4. Print State Vector (Debug)\n";
         cout << "5. Print probabilities (Debug)\n";
-        cout << "6. Exit\n";
+        cout << "6. Display probability graph\n";
+        cout << "7. Exit\n";
         cout << "Your choice: ";
 
         int choice;
@@ -99,12 +100,14 @@ int main() {
                 qc.measureProbabilities();
                 break;
             case 6:
+                qc.displayGraph();
+                break;
+            case 7:
                 running = false;
                 cout << "Exiting simulator. Goodbye!" << endl;
                 break;
             default:
-                cout << "Invalid choice. Please enter a number from 1 to 5." << endl;
-                break;
+                cout << "Invalid choice. Please enter a number from 1 to 7." << endl;
         }
     }
 

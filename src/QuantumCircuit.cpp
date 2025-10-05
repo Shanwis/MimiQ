@@ -5,6 +5,8 @@
 #include <iomanip>
 #include <stdexcept>
 #include "../include/QuantumCircuit.h"
+#include <fstream> // For std::ofstream
+#include <cstdlib> // For system()
 using namespace std;
 
 // Constructor with member initializer list
@@ -166,6 +168,51 @@ void QuantumCircuit::collapse(){
     cout << basis_states[index] << "\n";
 }
 
+// Display graph of probabilities
+void QuantumCircuit::displayGraph() {
+    // Step 1: Write data to a temporary file
+    ofstream dataFile("prob_data.dat");
+    if (!dataFile.is_open()) {
+        cerr << "Error: Could not open data file for gnuplot." << endl;
+        return;
+    }
+
+    vector<string> basis_states = generateBasisStates(qubit_count);
+    for (size_t i = 0; i < state_vector.size(); ++i) {
+        // Gnuplot format: "Label" Value
+        dataFile << "\"" << basis_states[i] << "\" " << norm(state_vector[i]) << "\n";
+    }
+    dataFile.close();
+
+    #ifdef _WIN32
+        string terminal = "set terminal qt size 800,600 font 'Verdana,10'; ";
+    #else
+        string terminal = "set terminal x11 size 800,600 font 'Verdana,10'; ";
+    #endif
+
+
+    // Step 2 & 3: Create a gnuplot command and execute it
+    string gnuplot_command = 
+        "gnuplot -e \""
+        + terminal +  // Use a modern terminal
+        "set title 'Quantum State Probabilities'; "
+        "set ylabel 'Probability'; "
+        "set xlabel 'Basis States'; "
+        "set yrange [0:1.1]; " // Set y-axis range from 0 to 1.1
+        "set style fill solid 0.5; " // Fill bars with a solid color
+        "set boxwidth 0.5; " // Set the width of the bars
+        "set xtics rotate by -45; " // Rotate x-axis labels for readability
+        "plot 'prob_data.dat' using 2:xtic(1) with boxes notitle, '' using (\\$0):(\\$2+0.05):(sprintf('%.3f',\\$2)) with labels font ',10' notitle; " // The main plot command
+        "pause -1 'Press Enter to continue...'; " // Keep the window open
+        "\"";
+
+    cout << "Displaying graph with gnuplot..." << endl;
+    system(gnuplot_command.c_str());
+
+    // Optional: Clean up the temporary file
+    remove("prob_data.dat");
+}
+
 void QuantumCircuit::measureProbabilities(){
     vector<string> basis_states = generateBasisStates(qubit_count);
 
@@ -176,6 +223,7 @@ void QuantumCircuit::measureProbabilities(){
         cout << "Probability of |" << basis_states[i] << ">: " << prob << "\n";
     }
     cout << "----------------------------\n";
+    // displayGraph();
 }
 
 void QuantumCircuit::printState() {
