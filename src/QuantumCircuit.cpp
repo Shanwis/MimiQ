@@ -184,10 +184,17 @@ void QuantumCircuit::displayGraph() {
     }
     dataFile.close();
 
+    #ifdef _WIN32
+        string terminal = "set terminal qt size 800,600 font 'Verdana,10'; ";
+    #else
+        string terminal = "set terminal x11 size 800,600 font 'Verdana,10'; ";
+    #endif
+
+
     // Step 2 & 3: Create a gnuplot command and execute it
     string gnuplot_command = 
         "gnuplot -e \""
-        "set terminal qt size 800,600 font 'Verdana,10'; " // Use a modern terminal
+        + terminal +  // Use a modern terminal
         "set title 'Quantum State Probabilities'; "
         "set ylabel 'Probability'; "
         "set xlabel 'Basis States'; "
@@ -195,7 +202,7 @@ void QuantumCircuit::displayGraph() {
         "set style fill solid 0.5; " // Fill bars with a solid color
         "set boxwidth 0.5; " // Set the width of the bars
         "set xtics rotate by -45; " // Rotate x-axis labels for readability
-        "plot 'prob_data.dat' using 2:xtic(1) with boxes notitle, '' using 0:($2+0.05):(sprintf('%.3f', $2)) with labels font ',10' notitle; " // The main plot command
+        "plot 'prob_data.dat' using 2:xtic(1) with boxes notitle, '' using (\\$0):(\\$2+0.05):(sprintf('%.3f',\\$2)) with labels font ',10' notitle; " // The main plot command
         "pause -1 'Press Enter to continue...'; " // Keep the window open
         "\"";
 
