@@ -16,6 +16,7 @@ A lightweight, command-line quantum circuit simulator written in modern C++. Thi
     * **Single-Qubit**: Hadamard (H), Pauli-X, Pauli-Y, Pauli-Z, Phase (S)
     * **Multi-Qubit**: Controlled-NOT (CNOT)
 * **Circuit Visualization**: Renders an ASCII diagram of the circuit you've built.
+* **Probability Graph**: Creates a GNUplot for showing the probablility graphs for the circuit created.
 * **Two Measurement Modes**:
     1.  **Probabilistic**: Display the probabilities of all possible outcomes.
     2. **State vectors**: Display the state vector.
@@ -30,12 +31,18 @@ A lightweight, command-line quantum circuit simulator written in modern C++. Thi
 
 * The make build automation tool.
 
+* GNUplot installed and added to your PATH.
+
 ### Installation & Setup
 **On Linux & macOS**
 
 On most Linux distributions and macOS, g++ and make are either pre-installed or can be easily installed through your system's package manager.
 
-**On Debian/Ubuntu**: sudo apt-get install build-essential
+**On Debian/Ubuntu**: 
+```
+sudo apt-get install build-essential
+sudo apt install gnuplot
+```
 
 **On macOS**: Install the Command Line Tools by running xcode-select --install in your terminal.
 
@@ -53,6 +60,7 @@ pacman -S --needed base-devel mingw-w64-x86_64-toolchain
 
 (Optional but recommended) Add the MinGW-w64 bin folder to your Windows PATH environment variable to run make and g++ from any terminal (like PowerShell or Command Prompt). The path is typically C:\msys64\mingw64\bin.
 
+Go to SourceForge abd install GNUPlot and add to the environment variables. 
 
 
 ### Build and Run
@@ -82,7 +90,8 @@ Once the program is running, it will first ask for the number of qubits you want
 3. Measure State(Collapses)
 4. Print State Vector (Debug)
 5. Print probabilities (Debug)
-6. Exit
+6. Display probability graph
+7. Exit
 Your choice:
 ```
 
@@ -109,6 +118,9 @@ Here's how to create the famous entangled Bell state $\frac{1}{\sqrt{2}}(|00\ran
     Probability of |11>: 0.500000
     ---------------------------
     ```
+6. Choose option **6. Display probability graph** The output will show the graph with probability:
+
+![Probability graph for bell state](./photos/graphusinggnuplot.png)
 
 This result demonstrates that a measurement will yield either `|00>` or `|11>` with equal probability, but never `|01>` or `|10>`. The fates of the two qubits are linked!
 
