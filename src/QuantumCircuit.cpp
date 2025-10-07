@@ -80,6 +80,8 @@ void QuantumCircuit::Z(int target_qubit){
     if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
 
     size_t mask = 1<< target_qubit;
+    
+    #pragma omp parallel for shared(mask)
     for(size_t i = 0; i < state_vector.size(); ++i){
         if(i&mask != 0){
             //apply -1 phase
@@ -97,6 +99,7 @@ void QuantumCircuit::Y(int target_qubit){
     size_t stride = 1 << (target_qubit + 1);
     size_t block_size = 1 << target_qubit;
 
+    #pragma omp parallel for
     for(size_t i = 0; i<state_vector.size(); i+=stride){
         for(size_t j=0; j<block_size; ++j) {
 
@@ -114,6 +117,7 @@ void QuantumCircuit::Y(int target_qubit){
 void QuantumCircuit::S(int target_qubit){
     if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
     size_t mask = 1<< target_qubit;
+    #pragma omp parallel for shared(mask)
     for(size_t i = 0; i < state_vector.size(); ++i){
         if(i&mask != 0){
             //apply phase of I
@@ -129,6 +133,7 @@ void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
     size_t control_mask = 1 << control_qubit;
     size_t target_mask = 1 << target_qubit;
 
+    #pragma omp parallel for
     for(size_t i=0; i<state_vector.size(); ++i) {
         if((i&control_mask) != 0){
             if(i < (i^target_mask)) swap(state_vector[i], state_vector[i^target_mask]);
