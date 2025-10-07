@@ -38,7 +38,7 @@ void applyGate(QuantumCircuit &qc, int qubit_count) {
             }else if (toupper(gate_type) == 'T'){
                 qc.T(target);
                 cout << "Applied T on qubit " << target << endl;
-            }else if (toupper(gate_type) == 'TFG'){
+            }else if (toupper(gate_type) == 'TDG'){
                 qc.Tdg(target);
                 cout << "Applied T dagger on qubit " << target << endl;
             } else {
@@ -75,7 +75,7 @@ int main() {
         cout << "5. Print probabilities (Debug)\n";
         cout << "6. Display probability graph\n";
         cout << "7. Display heat map representation\n";
-        cout << "7. Exit\n";
+        cout << "8. Exit\n";
         cout << "Your choice: ";
 
         int choice;
