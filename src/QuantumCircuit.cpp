@@ -120,6 +120,37 @@ void QuantumCircuit::S(int target_qubit){
     addCircuit(target_qubit, 'S');
 }
 
+void QuantumCircuit::T(int target_qubit) {
+    // Ensure the target qubit is valid
+    if (target_qubit < 0 || target_qubit >= qubit_count) {
+        throw std::out_of_range("Target qubit is out of range.");
+    }
+
+    const std::complex<double> phase = std::polar(1.0, M_PI / 4.0);
+
+    for (size_t i = 0; i < state_vector.size(); ++i) {
+        // Check if the target qubit's bit is 1 in the current basis state index 'i'
+        if ((i >> target_qubit) & 1) {
+            state_vector[i] *= phase;
+        }
+    }
+}
+
+void QuantumCircuit::Tdg(int target_qubit) {
+    if (target_qubit < 0 || target_qubit >= qubit_count) {
+        throw std::out_of_range("Target qubit is out of range.");
+    }
+
+    const std::complex<double> phase = std::polar(1.0, -M_PI / 4.0);
+
+    // The logic is identical to the T gate, just with the opposite phase
+    for (size_t i = 0; i < state_vector.size(); ++i) {
+        if ((i >> target_qubit) & 1) {
+            state_vector[i] *= phase;
+        }
+    }
+}
+
 void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
     if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
 
@@ -216,6 +247,53 @@ void QuantumCircuit::displayGraph() {
 
     // Optional: Clean up the temporary file
     remove("prob_data.dat");
+}
+
+void QuantumCircuit::HeatMapRep() {
+    ofstream dataFile("prob_data.dat");
+
+    int grid_size = 1 << (qubit_count/2);
+
+    if (!dataFile.is_open()) {
+        cerr << "Error: Could not open data file for gnuplot." << endl;
+        return;
+    }
+
+    for(int row=0; row<grid_size; ++row){
+        for(int col=0; col < grid_size; ++col){
+            size_t index = row * grid_size + col;
+            dataFile << norm(state_vector[index]) << " ";
+        }
+        dataFile << "\n"; 
+    }
+
+    dataFile.close();
+
+    #ifdef _WIN32
+        string terminal = "set terminal qt size 800,600 font 'Verdana,10'; ";
+    #else
+        string terminal = "set terminal x11 size 800,600 font 'Verdana,10'; ";
+    #endif
+
+
+    // Step 2 & 3: Create a gnuplot command and execute it
+    string gnuplot_command = 
+        "gnuplot -e \""
+        + terminal +  // Use a modern terminal
+        "set title 'Quantum State Probability heatmap';"
+        "unset xlabel; unset ylabel; unset xtics; unset ytics; "
+        "set palette defined (0 'black', 0.1 'dark-blue', 0.5 'yellow', 1 'white'); " // A nice color palette
+        "set cblabel 'Probability';"
+        "set cbrange [0:1];"
+        "plot 'prob_data.dat' matrix with image notitle; " // The main plot command
+        "pause -1 'Press Enter to continue...'; " // Keep the window open
+        "\"";
+
+    cout << "Displaying graph with gnuplot..." << endl;
+    system(gnuplot_command.c_str());
+
+    // Optional: Clean up the temporary file
+    //remove("prob_data.dat");
 }
 
 void QuantumCircuit::measureProbabilities(){
