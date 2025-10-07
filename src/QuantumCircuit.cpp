@@ -127,6 +127,38 @@ void QuantumCircuit::S(int target_qubit){
     addCircuit(target_qubit, 'S');
 }
 
+void QuantumCircuit::T(int target_qubit) {
+    // Ensure the target qubit is valid
+    if (target_qubit < 0 || target_qubit >= qubit_count) {
+        throw std::out_of_range("Target qubit is out of range.");
+    }
+
+    const std::complex<double> phase = std::polar(1.0, M_PI / 4.0);
+    #pragma omp parallel for
+    for (size_t i = 0; i < state_vector.size(); ++i) {
+        // Check if the target qubit's bit is 1 in the current basis state index 'i'
+        if ((i >> target_qubit) & 1) {
+            state_vector[i] *= phase;
+        }
+    }
+}
+
+void QuantumCircuit::Tdg(int target_qubit) {
+    if (target_qubit < 0 || target_qubit >= qubit_count) {
+        throw std::out_of_range("Target qubit is out of range.");
+    }
+
+    const std::complex<double> phase = std::polar(1.0, -M_PI / 4.0);
+
+    // The logic is identical to the T gate, just with the opposite phase
+    #pragma omp parallel for
+    for (size_t i = 0; i < state_vector.size(); ++i) {
+        if ((i >> target_qubit) & 1) {
+            state_vector[i] *= phase;
+        }
+    }
+}
+
 void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
     if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
 

@@ -6,7 +6,7 @@ using namespace std;
 
 // Function to handle gate application logic
 void applyGate(QuantumCircuit &qc, int qubit_count) {
-    cout << "\nEnter gate to apply (H, X, Z, Y, S, C for CNOT): ";
+    cout << "\nEnter gate to apply (H, X, Z, Y, S, C,  T, Tdg for CNOT): ";
     char gate_type;
     cin >> gate_type;
 
@@ -35,6 +35,12 @@ void applyGate(QuantumCircuit &qc, int qubit_count) {
             } else if (toupper(gate_type) == 'Y'){
                 qc.Y(target);
                 cout << "Applied Y on qubit " << target << endl;
+            }else if (toupper(gate_type) == 'T'){
+                qc.T(target);
+                cout << "Applied T on qubit " << target << endl;
+            }else if (toupper(gate_type) == 'TDG'){
+                qc.Tdg(target);
+                cout << "Applied T dagger on qubit " << target << endl;
             } else {
                 cout << "Invalid gate type." << endl;
             }
