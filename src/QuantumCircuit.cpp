@@ -179,6 +179,8 @@ void QuantumCircuit::collapse(){
 // Display graph of probabilities
 void QuantumCircuit::displayGraph() {
     // Step 1: Write data to a temporary file
+     const double prob_threshold = 0.01;
+
     ofstream dataFile("prob_data.dat");
     if (!dataFile.is_open()) {
         cerr << "Error: Could not open data file for gnuplot." << endl;
@@ -188,7 +190,10 @@ void QuantumCircuit::displayGraph() {
     vector<string> basis_states = generateBasisStates(qubit_count);
     for (size_t i = 0; i < state_vector.size(); ++i) {
         // Gnuplot format: "Label" Value
-        dataFile << "\"" << basis_states[i] << "\" " << norm(state_vector[i]) << "\n";
+        double prob = norm(state_vector[i]);
+        if(prob>=prob_threshold){
+            dataFile << "\"" << basis_states[i] << "\" " << prob << "\n";
+        }
     }
     dataFile.close();
 
