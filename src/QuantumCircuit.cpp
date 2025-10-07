@@ -83,7 +83,7 @@ void QuantumCircuit::Z(int target_qubit){
     
     #pragma omp parallel for shared(mask)
     for(size_t i = 0; i < state_vector.size(); ++i){
-        if(i&mask != 0){
+        if((i&mask) != 0){
             //apply -1 phase
             state_vector[i] *= -1.0;
         }
@@ -119,12 +119,12 @@ void QuantumCircuit::S(int target_qubit){
     size_t mask = 1<< target_qubit;
     #pragma omp parallel for shared(mask)
     for(size_t i = 0; i < state_vector.size(); ++i){
-        if(i&mask != 0){
+        if((i&mask) != 0){
             //apply phase of I
             state_vector[i] *= I;
         }
     }
-    addCircuit(target_qubit, 'Z');
+    addCircuit(target_qubit, 'S');
 }
 
 void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
