@@ -7,7 +7,7 @@ A lightweight, command-line quantum circuit simulator written in modern C++. Thi
 
 ---
 
-## Features ✨
+## Features
 
 * **N-Qubit Simulation**: Simulate a quantum system with any number of qubits ($N$).
 * **State Vector Model**: Uses a single state vector of $2^N$ complex amplitudes to accurately model entanglement and superposition.
@@ -91,7 +91,8 @@ Once the program is running, it will first ask for the number of qubits you want
 4. Print State Vector (Debug)
 5. Print probabilities (Debug)
 6. Display probability graph
-7. Exit
+7. Display Heat Map
+8. Exit
 Your choice:
 ```
 
