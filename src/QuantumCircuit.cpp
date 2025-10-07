@@ -4,9 +4,10 @@
 #include <cmath>
 #include <iomanip>
 #include <stdexcept>
-#include "../include/QuantumCircuit.h"
 #include <fstream> // For std::ofstream
 #include <cstdlib> // For system()
+#include <omp.h>
+#include "../include/QuantumCircuit.h"
 using namespace std;
 
 // Constructor with member initializer list
@@ -45,6 +46,7 @@ void QuantumCircuit::X(int target_qubit) {
     size_t stride = 1 << (target_qubit + 1);
     size_t block_size = 1 << target_qubit;
 
+    #pragma omp parallel for
     for(size_t i=0; i<state_vector.size(); i+=stride){
         for(size_t j=0; j<block_size; j++){
             swap(state_vector[i+j], state_vector[i+j+block_size]); //X gate swaps amplitudes
@@ -60,6 +62,7 @@ void QuantumCircuit::H(int target_qubit){
     size_t stride = 1 << (target_qubit + 1);
     size_t block_size = 1 << target_qubit;
 
+    #pragma omp parallel for
     for(size_t i = 0; i<state_vector.size(); i+=stride){
         for(size_t j=0; j<block_size; ++j) {
 

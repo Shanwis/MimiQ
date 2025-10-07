@@ -1,6 +1,6 @@
 SRC = src/QuantumCircuit.cpp src/main.cpp
 CC = g++
-CFLAG = -Iinclude
+CFLAG = -fopenmp -Iinclude
 OBJ = $(SRC:.cpp=.o)
 TARGET = Quantum_simulator
 
