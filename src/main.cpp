@@ -68,7 +68,8 @@ int main() {
         cout << "4. Print State Vector (Debug)\n";
         cout << "5. Print probabilities (Debug)\n";
         cout << "6. Display probability graph\n";
-        cout << "7. Exit\n";
+        cout << "7. Display heat map representation\n";
+        cout << "8. Exit\n";
         cout << "Your choice: ";
 
         int choice;
@@ -103,6 +104,9 @@ int main() {
                 qc.displayGraph();
                 break;
             case 7:
+                qc.HeatMapRep();
+                break;
+            case 8:
                 running = false;
                 cout << "Exiting simulator. Goodbye!" << endl;
                 break;

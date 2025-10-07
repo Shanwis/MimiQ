@@ -41,6 +41,7 @@ public:
     void measureProbabilities();
 
     void displayGraph();
+    void HeatMapRep();
 };
 
 #endif

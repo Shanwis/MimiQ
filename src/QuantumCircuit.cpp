@@ -226,6 +226,54 @@ void QuantumCircuit::displayGraph() {
     remove("prob_data.dat");
 }
 
+// Display heatmap of of probabilities
+void QuantumCircuit::HeatMapRep() {
+    ofstream dataFile("prob_data.dat");
+
+    int grid_size = 1 << (qubit_count/2);
+
+    if (!dataFile.is_open()) {
+        cerr << "Error: Could not open data file for gnuplot." << endl;
+        return;
+    }
+
+    for(int row=0; row<grid_size; ++row){
+        for(int col=0; col < grid_size; ++col){
+            size_t index = row * grid_size + col;
+            dataFile << norm(state_vector[index]) << " ";
+        }
+        dataFile << "\n"; 
+    }
+
+    dataFile.close();
+
+    #ifdef _WIN32
+        string terminal = "set terminal qt size 800,600 font 'Verdana,10'; ";
+    #else
+        string terminal = "set terminal x11 size 800,600 font 'Verdana,10'; ";
+    #endif
+
+
+    // Step 2 & 3: Create a gnuplot command and execute it
+    string gnuplot_command = 
+        "gnuplot -e \""
+        + terminal +  // Use a modern terminal
+        "set title 'Quantum State Probability heatmap';"
+        "unset xlabel; unset ylabel; unset xtics; unset ytics; "
+        "set palette defined (0 'black', 0.1 'dark-blue', 0.5 'yellow', 1 'white'); " // A nice color palette
+        "set cblabel 'Probability';"
+        "set cbrange [0:1];"
+        "plot 'prob_data.dat' matrix with image notitle; " // The main plot command
+        "pause -1 'Press Enter to continue...'; " // Keep the window open
+        "\"";
+
+    cout << "Displaying graph with gnuplot..." << endl;
+    system(gnuplot_command.c_str());
+
+    // Optional: Clean up the temporary file
+    //remove("prob_data.dat");
+}
+
 void QuantumCircuit::measureProbabilities(){
     vector<string> basis_states = generateBasisStates(qubit_count);
 
