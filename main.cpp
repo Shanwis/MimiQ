@@ -1,11 +1,12 @@
 #include <iostream>
 #include <limits>
-#include "../include/QuantumCircuit.h"
-
+#include "./include/QuantumCircuitSerial.h"
+#include "./include/QuantumCircuitParallel.h"
+#include "./include/QuantumCircuitBase.h"
 using namespace std;
 
 // Function to handle gate application logic
-void applyGate(QuantumCircuit &qc, int qubit_count) {
+void applyGate(QuantumCircuitParallel &qc, int qubit_count) {
     cout << "\nEnter gate to apply (H, X, Z, Y, S, C,  T, Tdg for CNOT): ";
     char gate_type;
     cin >> gate_type;
@@ -63,7 +64,7 @@ int main() {
         return 1;
     }
 
-    QuantumCircuit qc(n);
+    QuantumCircuitParallel qc(n);
     bool running = true;
 
     while (running) {
