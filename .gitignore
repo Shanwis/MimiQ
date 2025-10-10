@@ -4,5 +4,6 @@
 # Build artifacts from the Makefile
 *.o
 Quantum_simulator
+Quantum_Benchmark
 *.exe
 *.dat
