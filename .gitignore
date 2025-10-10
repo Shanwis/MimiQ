@@ -5,3 +5,4 @@
 *.o
 Quantum_simulator
 *.exe
+*.dat
