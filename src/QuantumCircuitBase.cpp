@@ -6,12 +6,11 @@
 #include <stdexcept>
 #include <fstream> // For std::ofstream
 #include <cstdlib> // For system()
-#include <omp.h>
-#include "../include/QuantumCircuit.h"
+#include "../include/QuantumCircuitBase.h"
 using namespace std;
 
 // Constructor with member initializer list
-QuantumCircuit::QuantumCircuit(int n) :
+QuantumCircuitBase::QuantumCircuitBase(int n) :
     qubit_count(n)
 {
     if(n<=0) {
@@ -25,7 +24,7 @@ QuantumCircuit::QuantumCircuit(int n) :
     state_vector[0] = 1.0; //Initialize the system to first state.
 }
 
-void QuantumCircuit::addCircuit(int qubit, char gate, int t_qubit = -1){
+void QuantumCircuitBase::addCircuit(int qubit, char gate, int t_qubit = -1){
     for(int i=0; i<qubit_count; i++){
         if(i == qubit){ circuit[i] += "-[" + string(1,gate) + "]-"; }
         else if (i==t_qubit){ circuit[i] += "-[*]-"; }
@@ -34,149 +33,14 @@ void QuantumCircuit::addCircuit(int qubit, char gate, int t_qubit = -1){
     }
 }
 
-void QuantumCircuit::printCircuit(){
+void QuantumCircuitBase::printCircuit(){
     for(int i=0; i<qubit_count; i++){
         cout << i << " " << circuit[i] << "\n";
     }
 }
 
-const complex<double> I(0.0,1.0);
-
-//Pattern 1: Superposition/Swapping Gates
-
-void QuantumCircuit::X(int target_qubit) {
-    if(target_qubit >= qubit_count || target_qubit < 0) throw out_of_range("Qubit index out of range.");
-
-    size_t stride = 1 << (target_qubit + 1);
-    size_t block_size = 1 << target_qubit;
-
-    #pragma omp parallel for
-    for(size_t i=0; i<state_vector.size(); i+=stride){
-        for(size_t j=0; j<block_size; j++){
-            swap(state_vector[i+j], state_vector[i+j+block_size]); //X gate swaps amplitudes
-        }
-    }
-    addCircuit(target_qubit, 'X');
-}
-
-void QuantumCircuit::H(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-
-    const complex<double> inv_sq_2 = 1.0 / sqrt(2.0);
-    size_t stride = 1 << (target_qubit + 1);
-    size_t block_size = 1 << target_qubit;
-
-    #pragma omp parallel for
-    for(size_t i = 0; i<state_vector.size(); i+=stride){
-        for(size_t j=0; j<block_size; ++j) {
-
-            //applying Hadamard on relevent pairs
-            complex<double> a = state_vector[i+j];
-            complex<double> b = state_vector[i+j+block_size];
-            state_vector[i+j] = inv_sq_2 * (a+b);
-            state_vector[i+j+block_size] = inv_sq_2 * (a-b);
-        }
-    }
-    addCircuit(target_qubit, 'H');
-}
-
-void QuantumCircuit::Y(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-    
-    size_t stride = 1 << (target_qubit + 1);
-    size_t block_size = 1 << target_qubit;
-
-    #pragma omp parallel for
-    for(size_t i = 0; i<state_vector.size(); i+=stride){
-        for(size_t j=0; j<block_size; ++j) {
-
-            //applying Y on relevent pairs
-            complex<double> a = state_vector[i+j];
-            complex<double> b = state_vector[i+j+block_size];
-            state_vector[i+j] = -I * b;
-            state_vector[i+j+block_size] = I * a;
-        }
-    }
-    addCircuit(target_qubit, 'Y');
-}
-
-//Pattern 2: Phase Gates
-
-void QuantumCircuit::Z(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-
-    size_t mask = 1<< target_qubit;
-    
-    #pragma omp parallel for shared(mask)
-    for(size_t i = 0; i < state_vector.size(); ++i){
-        if((i&mask) != 0){
-            //apply -1 phase
-            state_vector[i] *= -1.0;
-        }
-    }
-    addCircuit(target_qubit, 'Z');
-}
-
-
-void QuantumCircuit::S(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-    size_t mask = 1<< target_qubit;
-    #pragma omp parallel for shared(mask)
-    for(size_t i = 0; i < state_vector.size(); ++i){
-        if((i&mask) != 0){
-            //apply phase of I
-            state_vector[i] *= I;
-        }
-    }
-    addCircuit(target_qubit, 'S');
-}
-
-void QuantumCircuit::T(int target_qubit) {
-    if (target_qubit < 0 || target_qubit >= qubit_count) {
-        throw std::out_of_range("Target qubit is out of range.");
-    }
-
-    const std::complex<double> phase = std::polar(1.0, M_PI / 4.0);
-    #pragma omp parallel for
-    for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i >> target_qubit) & 1) {
-            state_vector[i] *= phase;
-        }
-    }
-}
-
-void QuantumCircuit::Tdg(int target_qubit) {
-    if (target_qubit < 0 || target_qubit >= qubit_count) {
-        throw std::out_of_range("Target qubit is out of range.");
-    }
-
-    const std::complex<double> phase = std::polar(1.0, -M_PI / 4.0);
-
-    #pragma omp parallel for
-    for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i >> target_qubit) & 1) {
-            state_vector[i] *= phase;
-        }
-    }
-}
-
-void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
-    if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
-
-    size_t control_mask = 1 << control_qubit;
-    size_t target_mask = 1 << target_qubit;
-
-    #pragma omp parallel for
-    for(size_t i=0; i<state_vector.size(); ++i) {
-        if((i&control_mask) != 0){
-            if(i < (i^target_mask)) swap(state_vector[i], state_vector[i^target_mask]);
-        }
-    }
-    addCircuit(control_qubit, 'C', target_qubit);
-}
-
 //collapse
-void QuantumCircuit::collapse(){
+void QuantumCircuitBase::collapse(){
     vector<string> basis_states = generateBasisStates(qubit_count);
     vector<double> weights;
     for(auto &a:state_vector){
@@ -196,7 +60,7 @@ void QuantumCircuit::collapse(){
 
 //Helper functions
 
-vector<string> QuantumCircuit::generateBasisStates(int n){
+vector<string> QuantumCircuitBase::generateBasisStates(int n){
     vector<string> basis_states;
     size_t num_states = 1<<n;
     for(size_t i = 0; i<num_states; i++){
@@ -212,7 +76,7 @@ vector<string> QuantumCircuit::generateBasisStates(int n){
     return basis_states;
 }
 
-void QuantumCircuit::displayGraph() {
+void QuantumCircuitBase::displayGraph() {
     // Step 1: Write data to a temporary file
      const double prob_threshold = 0.01;
 
@@ -260,7 +124,7 @@ void QuantumCircuit::displayGraph() {
     remove("prob_data.dat");
 }
 
-void QuantumCircuit::HeatMapRep() {
+void QuantumCircuitBase::HeatMapRep() {
     ofstream dataFile("prob_data.dat");
 
     int grid_size = 1 << (qubit_count/2);
@@ -306,7 +170,7 @@ void QuantumCircuit::HeatMapRep() {
     remove("prob_data.dat");
 }
 
-void QuantumCircuit::measureProbabilities(){
+void QuantumCircuitBase::measureProbabilities(){
     vector<string> basis_states = generateBasisStates(qubit_count);
 
     cout << fixed << setprecision(6);
@@ -319,7 +183,7 @@ void QuantumCircuit::measureProbabilities(){
     // displayGraph();
 }
 
-void QuantumCircuit::printState() {
+void QuantumCircuitBase::printState() {
     cout << "Current State Vector" << "\n";
     vector<string>basis_states = generateBasisStates(qubit_count);
     for(size_t i=0; i<state_vector.size(); i++){

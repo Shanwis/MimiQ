@@ -1,5 +1,5 @@
-#ifndef QUANTUMCIRCUIT_H
-#define QUANTUMCIRCUIT_H
+#ifndef QUANTUMCIRCUITBASE_H
+#define QUANTUMCIRCUITBASE_H
 
 #include<vector>
 #include<complex>
@@ -7,8 +7,8 @@
 
 using namespace std;
 
-class QuantumCircuit {
-private:
+class QuantumCircuitBase {
+protected:
     //member var
     int qubit_count;
     vector<complex<double>> state_vector;
@@ -21,19 +21,20 @@ private:
 
 public:
     //Constructor
-    QuantumCircuit(int n);
+    QuantumCircuitBase(int n);
+    virtual ~QuantumCircuitBase() = default;
 
     //Public gate methods
-    void H(int target_qubit);
-    void X(int target_qubit);
-    void Z(int target_qubit);
-    void Y(int target_qubit);
-    void S(int target_qubit);
-    void T(int target_qubit);
-    void Tdg(int target_qubit);
-    void CNOT(int control_qubit, int target_qubit);
+    virtual void H(int target_qubit) = 0;
+    virtual void X(int target_qubit) = 0;
+    virtual void Z(int target_qubit) = 0;
+    virtual void Y(int target_qubit) = 0;
+    virtual void S(int target_qubit) = 0;
+    virtual void T(int target_qubit) = 0;
+    virtual void Tdg(int target_qubit) = 0;
+    virtual void CNOT(int control_qubit, int target_qubit) = 0;
     void addCircuit(int qubit, char gate, int t_qubit);
-
+    
     //measurement
     void collapse();
 
