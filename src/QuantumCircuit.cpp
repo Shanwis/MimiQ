@@ -39,6 +39,10 @@ void QuantumCircuit::printCircuit(){
     }
 }
 
+//Pattern 1: Superposition/Swapping Gates
+
+const complex<double> I(0.0,1.0);
+
 void QuantumCircuit::X(int target_qubit) {
     if(target_qubit >= qubit_count || target_qubit < 0) throw out_of_range("Qubit index out of range.");
 
@@ -73,21 +77,6 @@ void QuantumCircuit::H(int target_qubit){
     addCircuit(target_qubit, 'H');
 }
 
-void QuantumCircuit::Z(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-
-    size_t mask = 1<< target_qubit;
-    for(size_t i = 0; i < state_vector.size(); ++i){
-        if((i&mask) != 0){
-            //apply -1 phase
-            state_vector[i] *= -1.0;
-        }
-    }
-    addCircuit(target_qubit, 'Z');
-}
-
-const complex<double> I(0.0,1.0);
-
 void QuantumCircuit::Y(int target_qubit){
     if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
     
@@ -107,6 +96,20 @@ void QuantumCircuit::Y(int target_qubit){
     addCircuit(target_qubit, 'Y');
 }
 
+//Pattern 2: Phase Gates
+
+void QuantumCircuit::Z(int target_qubit){
+    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
+
+    size_t mask = 1<< target_qubit;
+    for(size_t i = 0; i < state_vector.size(); ++i){
+        if((i&mask) != 0){
+            //apply -1 phase
+            state_vector[i] *= -1.0;
+        }
+    }
+    addCircuit(target_qubit, 'Z');
+}
 
 void QuantumCircuit::S(int target_qubit){
     if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
@@ -121,7 +124,6 @@ void QuantumCircuit::S(int target_qubit){
 }
 
 void QuantumCircuit::T(int target_qubit) {
-    // Ensure the target qubit is valid
     if (target_qubit < 0 || target_qubit >= qubit_count) {
         throw std::out_of_range("Target qubit is out of range.");
     }
@@ -129,7 +131,6 @@ void QuantumCircuit::T(int target_qubit) {
     const std::complex<double> phase = std::polar(1.0, M_PI / 4.0);
 
     for (size_t i = 0; i < state_vector.size(); ++i) {
-        // Check if the target qubit's bit is 1 in the current basis state index 'i'
         if ((i >> target_qubit) & 1) {
             state_vector[i] *= phase;
         }
@@ -143,13 +144,14 @@ void QuantumCircuit::Tdg(int target_qubit) {
 
     const std::complex<double> phase = std::polar(1.0, -M_PI / 4.0);
 
-    // The logic is identical to the T gate, just with the opposite phase
     for (size_t i = 0; i < state_vector.size(); ++i) {
         if ((i >> target_qubit) & 1) {
             state_vector[i] *= phase;
         }
     }
 }
+
+//Pattern 3: Two-Qubit Gates
 
 void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
     if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
@@ -165,21 +167,7 @@ void QuantumCircuit::CNOT(int control_qubit, int target_qubit){
     addCircuit(control_qubit, 'C', target_qubit);
 }
 
-vector<string> QuantumCircuit::generateBasisStates(int n){
-    vector<string> basis_states;
-    size_t num_states = 1<<n;
-    for(size_t i = 0; i<num_states; i++){
-        string basis = "";
-        int temp = i;
-        for(int j=0; j<n; j++){
-            basis += to_string(temp%2);
-            temp/=2;
-        }
-        reverse(basis.begin(), basis.end());
-        basis_states.push_back(basis);
-    }
-    return basis_states;
-}
+//Collapse
 
 void QuantumCircuit::collapse(){
     vector<string> basis_states = generateBasisStates(qubit_count);
@@ -199,7 +187,24 @@ void QuantumCircuit::collapse(){
     cout << basis_states[index] << "\n";
 }
 
-// Display graph of probabilities
+//Helper functions
+
+vector<string> QuantumCircuit::generateBasisStates(int n){
+    vector<string> basis_states;
+    size_t num_states = 1<<n;
+    for(size_t i = 0; i<num_states; i++){
+        string basis = "";
+        int temp = i;
+        for(int j=0; j<n; j++){
+            basis += to_string(temp%2);
+            temp/=2;
+        }
+        reverse(basis.begin(), basis.end());
+        basis_states.push_back(basis);
+    }
+    return basis_states;
+}
+
 void QuantumCircuit::displayGraph() {
     // Step 1: Write data to a temporary file
     const double prob_threshold = 0.01;
@@ -245,7 +250,6 @@ void QuantumCircuit::displayGraph() {
     cout << "Displaying graph with gnuplot..." << endl;
     system(gnuplot_command.c_str());
 
-    // Optional: Clean up the temporary file
     remove("prob_data.dat");
 }
 
@@ -292,8 +296,7 @@ void QuantumCircuit::HeatMapRep() {
     cout << "Displaying graph with gnuplot..." << endl;
     system(gnuplot_command.c_str());
 
-    // Optional: Clean up the temporary file
-    //remove("prob_data.dat");
+    remove("prob_data.dat");
 }
 
 void QuantumCircuit::measureProbabilities(){
