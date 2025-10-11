@@ -3,21 +3,22 @@
 [![Language](https://img.shields.io/badge/Language-C%2B%2B-blue.svg)](https://isocpp.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-A lightweight, command-line quantum circuit simulator written in modern C++. This project provides an interactive interface to build, visualize, and measure quantum circuits. It is capable of simulating both superposition and entanglement for an N-qubit system using a full state vector representation.
+A lightweight, modern C++ library for simulating quantum circuits. This project provides a core QuantumCircuit class to build, manipulate, and measure N-qubit systems. It is capable of simulating both superposition and entanglement using a full state vector representation.
 
----
+The repository also includes a command-line application that serves as a demonstration of the library's features.
+
 
 ## Features
 
+* **Core C++ Library**: A self-contained set of classes of quantum simulation that can be easily integrated into your own C++ projects :) .
 * **N-Qubit Simulation**: Simulate a quantum system with any number of qubits ($N$).
 * **State Vector Model**: Uses a single state vector of $2^N$ complex amplitudes to accurately model entanglement and superposition.
-* **Interactive CLI**: A user-friendly command-line interface to build and test circuits step-by-step.
-* **Supported Gates**:
-    * **Single-Qubit**: Hadamard (H), Pauli-X, Pauli-Y, Pauli-Z, Phase (S)
+* **Rich Gate Set (there is more to add honetly)**:
+    * **Single-Qubit**: Hadamard (H), Pauli-X, Pauli-Y, Pauli-Z, Phase (S), T and T-dagger.
     * **Multi-Qubit**: Controlled-NOT (CNOT)
 * **Circuit Visualization**: Renders an ASCII diagram of the circuit you've built.
 * **Probability Graph**: Creates a GNUplot for showing the probablility graphs for the circuit created.
-* **Two Measurement Modes**:
+* **Three Measurement Modes**:
     1.  **Probabilistic**: Display the probabilities of all possible outcomes.
     2. **State vectors**: Display the state vector.
     2.  **Collapse**: Simulate a real measurement by collapsing the wave function to a single, definite state.

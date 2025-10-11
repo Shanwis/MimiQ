@@ -24,7 +24,7 @@ LIB_OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(LIB_SRCS))
 
 # Target 1: The Interactive Simulator
 TARGET_SIM = $(BINDIR)/Quantum_simulator
-MAIN_SIM_SRC = main.cpp
+MAIN_SIM_SRC = interactive_cli.cpp
 MAIN_SIM_OBJ = $(OBJDIR)/$(MAIN_SIM_SRC:.cpp=.o)
 
 # Target 2: The Benchmark Program
