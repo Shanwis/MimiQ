@@ -104,6 +104,8 @@ void QuantumCircuitSerial::T(int target_qubit) {
             state_vector[i] *= phase;
         }
     }
+
+    addCircuit(target_qubit, 'T', -1);
 }
 
 void QuantumCircuitSerial::Tdg(int target_qubit) {
@@ -118,6 +120,8 @@ void QuantumCircuitSerial::Tdg(int target_qubit) {
             state_vector[i] *= phase;
         }
     }
+
+    addCircuit(target_qubit, 't', -1);
 }
 
 //Pattern 3: Two-Qubit Gates

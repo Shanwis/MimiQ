@@ -109,6 +109,8 @@ void QuantumCircuitParallel::T(int target_qubit) {
             state_vector[i] *= phase;
         }
     }
+
+    addCircuit(target_qubit, 'T', -1);
 }
 
 void QuantumCircuitParallel::Tdg(int target_qubit) {
@@ -124,6 +126,8 @@ void QuantumCircuitParallel::Tdg(int target_qubit) {
             state_vector[i] *= phase;
         }
     }
+
+    addCircuit(target_qubit, 't', -1);
 }
 
 void QuantumCircuitParallel::CNOT(int control_qubit, int target_qubit){
