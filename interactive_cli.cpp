@@ -7,7 +7,7 @@ using namespace std;
 
 // Function to handle gate application logic
 void applyGate(QuantumCircuitParallel &qc, int qubit_count) {
-    cout << "\nEnter gate to apply (H, X, Z, Y, S, C,  T, Tdg for CNOT): ";
+    cout << "\nEnter gate to apply (H, X, Z, Y, S, T, Tdg, C for CNOT, M for Measuring): ";
     char gate_type;
     cin >> gate_type;
 
@@ -42,6 +42,8 @@ void applyGate(QuantumCircuitParallel &qc, int qubit_count) {
             }else if (toupper(gate_type) == 'TDG'){
                 qc.Tdg(target);
                 cout << "Applied T dagger on qubit " << target << endl;
+            }else if(toupper(gate_type) == 'M'){
+                qc.measure_single_qubit(target);
             } else {
                 cout << "Invalid gate type." << endl;
             }
@@ -69,9 +71,9 @@ int main() {
 
     while (running) {
         cout << "\n--- Menu ---\n";
-        cout << "1. Apply Gate\n";
+        cout << "1. Apply Gate (includes measurement of single qubits)\n";
         cout << "2. Display Circuit\n";
-        cout << "3. Measure State(Collapses)\n";
+        cout << "3. Measure Circuit(Collapses)\n";
         cout << "4. Print State Vector (Debug)\n";
         cout << "5. Print probabilities (Debug)\n";
         cout << "6. Display probability graph\n";

@@ -37,6 +37,7 @@ public:
     
     //measurement
     void collapse();
+    void measure_single_qubit(int qubit);
 
     // Helper to print the current state vector
     void printState();

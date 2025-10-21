@@ -1,5 +1,5 @@
 # IDE and editor specific files
-vscode/
+.vscode/
 bin/
 obj/
 

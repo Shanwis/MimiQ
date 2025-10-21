@@ -9,6 +9,8 @@
 #include "../include/QuantumCircuitBase.h"
 using namespace std;
 
+const double prob_threshold = 0.01;
+
 // Constructor with member initializer list
 QuantumCircuitBase::QuantumCircuitBase(int n) :
     qubit_count(n)
@@ -26,10 +28,10 @@ QuantumCircuitBase::QuantumCircuitBase(int n) :
 
 void QuantumCircuitBase::addCircuit(int qubit, char gate, int t_qubit = -1){
     for(int i=0; i<qubit_count; i++){
-        if(i == qubit){ circuit[i] += "-[" + string(1,gate) + "]-"; }
-        else if (i==t_qubit){ circuit[i] += "-[*]-"; }
-        else if (i>qubit && i<t_qubit) { circuit[i] += "--+--";}
-        else circuit[i] += "-----";
+        if(i == qubit){ circuit[i] += "[" + string(1,gate) + "]"; }
+        else if (i==t_qubit){ circuit[i] += "[*]"; }
+        else if (i>qubit && i<t_qubit) { circuit[i] += "-+-";}
+        else circuit[i] += "---";
     }
 }
 
@@ -56,10 +58,44 @@ void QuantumCircuitBase::collapse(){
     fill(state_vector.begin(), state_vector.end(), 0.0);
     state_vector[index] = 1.0;
     cout << basis_states[index] << "\n";
+    for(int i=0; i<qubit_count; i++){
+       circuit[i] += "[M]";
+    }
+}
+
+void QuantumCircuitBase::measure_single_qubit(int qubit){
+    
+    double prob_of_one = 0.0;
+    size_t num_states = 1<<qubit_count;
+
+    for(int i=0; i<num_states; i++){
+        if((i>>qubit) & 1){
+            prob_of_one += norm(state_vector[i]);
+        }
+    }
+
+    static random_device rd;
+    static mt19937 gen(rd());
+    bernoulli_distribution dist(prob_of_one);
+    int measurement = dist(gen);
+
+    double norm_factor = measurement == 1 ? sqrt(prob_of_one) : sqrt(1.0-prob_of_one);
+
+    for(int i=0; i<num_states; i++){
+        bool bit_is_one = ((i>>qubit) & 1);
+
+        if(bit_is_one == measurement){
+            state_vector[i] /= norm_factor;
+        }else{
+            state_vector[i] = 0.0;
+        }
+    }
+
+    cout << "Measurement qubit " << qubit << " and got: " << measurement;
+    addCircuit(qubit,'M',-1);
 }
 
 //Helper functions
-
 vector<string> QuantumCircuitBase::generateBasisStates(int n){
     vector<string> basis_states;
     size_t num_states = 1<<n;
@@ -78,8 +114,6 @@ vector<string> QuantumCircuitBase::generateBasisStates(int n){
 
 void QuantumCircuitBase::displayGraph() {
     // Step 1: Write data to a temporary file
-     const double prob_threshold = 0.01;
-
     ofstream dataFile("prob_data.dat");
     if (!dataFile.is_open()) {
         cerr << "Error: Could not open data file for gnuplot." << endl;
@@ -177,7 +211,7 @@ void QuantumCircuitBase::measureProbabilities(){
     cout << qubit_count << "-Qubit Measurement Results" << "\n";
     for(size_t i = 0; i<state_vector.size(); ++i) {
         double prob = norm(state_vector[i]);
-        cout << "Probability of |" << basis_states[i] << ">: " << prob << "\n";
+        if(prob >= prob_threshold) cout << "Probability of |" << basis_states[i] << ">: " << prob << "\n";
     }
     cout << "----------------------------\n";
     // displayGraph();
