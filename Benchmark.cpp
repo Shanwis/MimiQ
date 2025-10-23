@@ -37,7 +37,7 @@ int main() {
     int num_gates = 500;
 
     cout << "--- Quantum Simulator Benchmark ---\n";
-    cout << "Enter the number of qubits (e.g., 10-24): ";
+    cout << "Enter the number of qubits (e.g., 10): ";
     cin >> num_qubits;
     cout << "Enter the number of threads for the parallel version: ";
     cin >> num_threads;

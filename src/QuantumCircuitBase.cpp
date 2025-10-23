@@ -36,9 +36,11 @@ void QuantumCircuitBase::addCircuit(int qubit, char gate, int t_qubit = -1){
 }
 
 void QuantumCircuitBase::printCircuit(){
+    cout << "--- Circuit Diagram ---\n";
     for(int i=0; i<qubit_count; i++){
-        cout << i << " " << circuit[i] << "\n";
+        cout << 'q' << i << " " << circuit[i] << "\n";
     }
+    cout << "-----------------------";
 }
 
 //collapse
