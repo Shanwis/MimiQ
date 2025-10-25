@@ -14,7 +14,7 @@ enum GateType { H, X, Y, Z, S, T, Tdg, CNOT };
 struct GateOp {
     GateType type;
     int target;
-    int control; // Used only for CNOT
+    int control;
 };
 
 // Function to apply a specific gate from our GateOp list
@@ -55,7 +55,7 @@ int main() {
     // Setup random number generation
     random_device rd;
     mt19937 gen(rd());
-    uniform_int_distribution<> gate_dist(0, 7); // For our 8 gates
+    uniform_int_distribution<> gate_dist(0, 7); 
     uniform_int_distribution<> qubit_dist(0, num_qubits - 1);
 
     for (int i = 0; i < num_gates; ++i) {

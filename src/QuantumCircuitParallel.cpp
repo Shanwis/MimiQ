@@ -8,7 +8,7 @@ const complex<double> I(0.0,1.0);
 
 QuantumCircuitParallel::QuantumCircuitParallel(int n) : QuantumCircuitBase(n) {}
 
-//Pattern 1: Superposition/Swapping Gates
+//Type 1: Pauli Gates
 
 void QuantumCircuitParallel::X(int target_qubit) {
     if(target_qubit >= qubit_count || target_qubit < 0) throw out_of_range("Qubit index out of range.");
@@ -23,27 +23,6 @@ void QuantumCircuitParallel::X(int target_qubit) {
         }
     }
     addCircuit(target_qubit, 'X', -1);
-}
-
-void QuantumCircuitParallel::H(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-
-    const complex<double> inv_sq_2 = 1.0 / sqrt(2.0);
-    size_t stride = 1 << (target_qubit + 1);
-    size_t block_size = 1 << target_qubit;
-
-    #pragma omp parallel for
-    for(size_t i = 0; i<state_vector.size(); i+=stride){
-        for(size_t j=0; j<block_size; ++j) {
-
-            //applying Hadamard on relevent pairs
-            complex<double> a = state_vector[i+j];
-            complex<double> b = state_vector[i+j+block_size];
-            state_vector[i+j] = inv_sq_2 * (a+b);
-            state_vector[i+j+block_size] = inv_sq_2 * (a-b);
-        }
-    }
-    addCircuit(target_qubit, 'H', -1);
 }
 
 void QuantumCircuitParallel::Y(int target_qubit){
@@ -66,8 +45,6 @@ void QuantumCircuitParallel::Y(int target_qubit){
     addCircuit(target_qubit, 'Y', -1);
 }
 
-//Pattern 2: Phase Gates
-
 void QuantumCircuitParallel::Z(int target_qubit){
     if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
 
@@ -83,6 +60,30 @@ void QuantumCircuitParallel::Z(int target_qubit){
     addCircuit(target_qubit, 'Z', -1);
 }
 
+//Type 2: Superposition Gate
+
+void QuantumCircuitParallel::H(int target_qubit){
+    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
+
+    const complex<double> inv_sq_2 = 1.0 / sqrt(2.0);
+    size_t stride = 1 << (target_qubit + 1);
+    size_t block_size = 1 << target_qubit;
+
+    #pragma omp parallel for
+    for(size_t i = 0; i<state_vector.size(); i+=stride){
+        for(size_t j=0; j<block_size; ++j) {
+
+            //applying Hadamard on relevent pairs
+            complex<double> a = state_vector[i+j];
+            complex<double> b = state_vector[i+j+block_size];
+            state_vector[i+j] = inv_sq_2 * (a+b);
+            state_vector[i+j+block_size] = inv_sq_2 * (a-b);
+        }
+    }
+    addCircuit(target_qubit, 'H', -1);
+}
+
+//Type 3: Phase Gate 
 
 void QuantumCircuitParallel::S(int target_qubit){
     if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
@@ -98,11 +99,9 @@ void QuantumCircuitParallel::S(int target_qubit){
 }
 
 void QuantumCircuitParallel::T(int target_qubit) {
-    if (target_qubit < 0 || target_qubit >= qubit_count) {
-        throw std::out_of_range("Target qubit is out of range.");
-    }
+    if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
 
-    const std::complex<double> phase = std::polar(1.0, M_PI / 4.0);
+    const complex<double> phase = polar(1.0, M_PI / 4.0);
     #pragma omp parallel for
     for (size_t i = 0; i < state_vector.size(); ++i) {
         if ((i >> target_qubit) & 1) {
@@ -114,12 +113,9 @@ void QuantumCircuitParallel::T(int target_qubit) {
 }
 
 void QuantumCircuitParallel::Tdg(int target_qubit) {
-    if (target_qubit < 0 || target_qubit >= qubit_count) {
-        throw std::out_of_range("Target qubit is out of range.");
-    }
+    if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
 
-    const std::complex<double> phase = std::polar(1.0, -M_PI / 4.0);
-
+    const complex<double> phase = polar(1.0, -M_PI / 4.0);
     #pragma omp parallel for
     for (size_t i = 0; i < state_vector.size(); ++i) {
         if ((i >> target_qubit) & 1) {
@@ -129,6 +125,8 @@ void QuantumCircuitParallel::Tdg(int target_qubit) {
 
     addCircuit(target_qubit, 't', -1);
 }
+
+//Type 4: Entangling gate
 
 void QuantumCircuitParallel::CNOT(int control_qubit, int target_qubit){
     if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");

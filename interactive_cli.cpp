@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <algorithm>
 #include "./include/QuantumCircuitSerial.h"
 #include "./include/QuantumCircuitParallel.h"
 #include "./include/QuantumCircuitBase.h"
@@ -8,13 +9,14 @@ using namespace std;
 // Function to handle gate application logic
 void applyGate(QuantumCircuitParallel &qc, int qubit_count) {
     cout << "\nEnter gate to apply (H, X, Z, Y, S, T, Tdg, C for CNOT, M for Measuring): ";
-    char gate_type;
+    string gate_type;
     cin >> gate_type;
+    transform(gate_type.begin(), gate_type.end(), gate_type.begin(), ::toupper);
 
     int target = -1, control = -1;
 
     try {
-        if (toupper(gate_type) == 'C') {
+        if (gate_type == "C") {
             cout << "Enter control qubit: ";
             cin >> control;
             cout << "Enter target qubit: ";
@@ -24,25 +26,25 @@ void applyGate(QuantumCircuitParallel &qc, int qubit_count) {
         } else {
             cout << "Enter target qubit: ";
             cin >> target;
-            if (toupper(gate_type) == 'H') {
+            if (gate_type == "H") {
                 qc.H(target);
                 cout << "Applied H on qubit " << target << endl;
-            } else if (toupper(gate_type) == 'X') {
+            } else if (gate_type == "X") {
                 qc.X(target);
                 cout << "Applied X on qubit " << target << endl;
-            } else if (toupper(gate_type) == 'Z') {
+            } else if (gate_type == "Z") {
                 qc.Z(target);
                 cout << "Applied Z on qubit " << target << endl;
-            } else if (toupper(gate_type) == 'Y'){
+            } else if (gate_type == "Y"){
                 qc.Y(target);
                 cout << "Applied Y on qubit " << target << endl;
-            }else if (toupper(gate_type) == 'T'){
+            }else if (gate_type == "T"){
                 qc.T(target);
                 cout << "Applied T on qubit " << target << endl;
-            }else if (toupper(gate_type) == 'TDG'){
+            }else if (gate_type == "TDG"){
                 qc.Tdg(target);
                 cout << "Applied T dagger on qubit " << target << endl;
-            }else if(toupper(gate_type) == 'M'){
+            }else if(gate_type == "M"){
                 qc.measure_single_qubit(target);
             } else {
                 cout << "Invalid gate type." << endl;
