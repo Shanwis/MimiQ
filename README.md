@@ -193,6 +193,30 @@ Speedup: 3.03527x
 
 Adding soon :)
 
+## Project Structure
+
+```bash
+MimiQ/
+├── include/
+│   ├── QuantumCircuitBase.h
+│   ├── QuantumCircuitParallel.h
+│   └── QuantumCircuitSerial.h
+├── photos
+│   ├── graphusinggnuplot.png
+│   └── heatmaprepbellstateMimiQ.png
+├── src
+│   ├── QuantumCircuitBase.cpp
+│   ├── QuantumCircuitParallel.cpp
+│   └── QuantumCircuitSerial.cpp
+├── Benchmark.cpp
+├── interactive_cli.cpp
+├── LICENSE
+├── Makefile
+└── README.md
+
+4 directories, 13 files
+```
+
 ## Future Scope
 
 The library is limited by the system's RAM due to the use of openMP, this could be resolved by using the power of distributed computing.
