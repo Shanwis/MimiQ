@@ -2,6 +2,7 @@
 .vscode/
 bin/
 obj/
+lib/
 
 # Build artifacts from the Makefile
 *.o

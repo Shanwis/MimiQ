@@ -76,9 +76,35 @@ Go to SourceForge abd install GNUPlot and add to the environment variables.
     make
     ```
 
+     To use the library in your own project copy the include and lib files to you project
+    ```bash
+    MyQuantumApp/
+    ├── include/
+    │   └── MimiQ/
+    │       ├── QuantumCircuitBase.h
+    │       ├── QuantumCircuitParallel.h
+    │       └── QuantumCircuitSerial.h
+    ├── lib/
+    │   └── libMimiQ.a
+    ├── src/
+    │   └── main.cpp
+    └── Makefile
+    ```
+
+    when executing the src/main.cpp add flags
+
+    ```bash
+    -Iinclude -fopenmp -Llib -lMimiQ
+    ```
+
     To run the interative CLI we made for seeing the library in action:
     ```bash
     make run
+    ```
+
+    To try running a code using the library inside the directory
+    ```bash
+    make run PROGRAM=<program name>
     ```
 
     To run the benchmark program to compare the serial and parallel implementation:
@@ -189,9 +215,33 @@ Speedup: 3.03527x
 --By Ashwin S, 2023BCS0044 & Elhan B Thomas, 2023BCS0119--
 ```
 
-### 3. Use as a Library
+### 3. Executing Code in the directory
 
-Adding soon :)
+Taking the example of bell state  again
+
+```bash
+#include "include/QuantumCircuitParallel.h"
+
+int main(){
+    QuantumCircuitParallel qc(2);
+
+    qc.H(0);
+    qc.CNOT(0,1);
+
+    qc.printCircuit();
+    qc.measureProbabilities();
+}
+```
+Output:
+```bash
+--- Circuit Diagram ---
+q0 [H][C]
+q1 ---[*]
+-----------------------
+2-Qubit Measurement Results
+Probability of |00>: 0.500000
+Probability of |11>: 0.500000
+```
 
 ## Project Structure
 

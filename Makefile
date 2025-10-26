@@ -2,6 +2,8 @@
 CXX = g++
 CXXFLAGS = -Iinclude -fopenmp
 
+LIBDIR = lib
+LIBNAME = libMimiQ.a
 SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
@@ -18,29 +20,30 @@ endif
 
 $(shell $(call MKDIR,$(OBJDIR)))
 $(shell $(call MKDIR,$(BINDIR)))
+$(shell $(call MKDIR,$(LIBDIR)))
 
 LIB_SRCS = $(wildcard $(SRCDIR)/*.cpp)
 LIB_OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(LIB_SRCS))
 
-# Target 1: The Interactive Simulator
-TARGET_SIM = $(BINDIR)/Quantum_simulator
-MAIN_SIM_SRC = interactive_cli.cpp
-MAIN_SIM_OBJ = $(OBJDIR)/$(MAIN_SIM_SRC:.cpp=.o)
+# Target 1: The Interactive Simulator or other programs
+PROGRAM ?= interactive_cli.cpp
+TARGET_RUN = $(BINDIR)/$(PROGRAM:.cpp=)
+MAIN_RUN_OBJ = $(OBJDIR)/$(PROGRAM:.cpp=.o)
 
 # Target 2: The Benchmark Program
 TARGET_BENCH = $(BINDIR)/Quantum_Benchmark
 MAIN_BENCH_SRC = Benchmark.cpp
 MAIN_BENCH_OBJ = $(OBJDIR)/$(MAIN_BENCH_SRC:.cpp=.o)
 
-.PHONY: all clean run benchmark
+.PHONY: all clean run benchmark lib
 
-all: $(TARGET_SIM) $(TARGET_BENCH)
+all: lib $(TARGET_RUN) $(TARGET_BENCH)
 
-$(TARGET_SIM): $(MAIN_SIM_OBJ) $(LIB_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+$(TARGET_RUN): $(MAIN_RUN_OBJ) lib
+	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_RUN_OBJ) -L$(LIBDIR) -lMimiQ
 
-$(TARGET_BENCH): $(MAIN_BENCH_OBJ) $(LIB_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+$(TARGET_BENCH): $(MAIN_BENCH_OBJ) lib
+	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_RUN_OBJ) -L$(LIBDIR) -lMimiQ
 
 $(OBJDIR)/%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -48,8 +51,13 @@ $(OBJDIR)/%.o: %.cpp
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-run: $(TARGET_SIM)
-	./$(TARGET_SIM)
+lib: $(LIBDIR)/$(LIBNAME)
+
+$(LIBDIR)/$(LIBNAME): $(LIB_OBJS)
+	ar rcs $@ $^
+
+run: $(TARGET_RUN)
+	./$(TARGET_RUN)
 
 benchmark: $(TARGET_BENCH)
 	./$(TARGET_BENCH)
@@ -57,3 +65,4 @@ benchmark: $(TARGET_BENCH)
 clean:
 	-$(call RM,$(OBJDIR))
 	-$(call RM,$(BINDIR))
+	-$(call RM,$(LIBDIR))
