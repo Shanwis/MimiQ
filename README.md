@@ -220,6 +220,7 @@ Speedup: 3.03527x
 Taking the example of bell state  again
 
 ```bash
+//have this saved as bellstate.cpp in the directory
 #include "include/QuantumCircuitParallel.h"
 
 int main(){
@@ -232,7 +233,7 @@ int main(){
     qc.measureProbabilities();
 }
 ```
-Output:
+Run it in the directory and you will get output:
 ```bash
 --- Circuit Diagram ---
 q0 [H][C]
