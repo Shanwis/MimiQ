@@ -27,8 +27,9 @@ LIB_OBJS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(LIB_SRCS))
 
 # Target 1: The Interactive Simulator or other programs
 PROGRAM ?= interactive_cli.cpp
-TARGET_RUN = $(BINDIR)/$(PROGRAM:.cpp=)
-MAIN_RUN_OBJ = $(OBJDIR)/$(PROGRAM:.cpp=.o)
+PROGRAM_NAME = $(notdir $(PROGRAM))
+TARGET_RUN = $(BINDIR)/$(PROGRAM_NAME:.cpp=)
+MAIN_RUN_OBJ = $(OBJDIR)/$(PROGRAM_NAME:.cpp=.o)
 
 # Target 2: The Benchmark Program
 TARGET_BENCH = $(BINDIR)/Quantum_Benchmark
@@ -43,9 +44,12 @@ $(TARGET_RUN): $(MAIN_RUN_OBJ) lib
 	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_RUN_OBJ) -L$(LIBDIR) -lMimiQ
 
 $(TARGET_BENCH): $(MAIN_BENCH_OBJ) lib
-	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_RUN_OBJ) -L$(LIBDIR) -lMimiQ
+	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_BENCH_OBJ) -L$(LIBDIR) -lMimiQ
 
-$(OBJDIR)/%.o: %.cpp
+$(MAIN_RUN_OBJ): $(PROGRAM)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(MAIN_BENCH_OBJ): $(MAIN_BENCH_SRC)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp

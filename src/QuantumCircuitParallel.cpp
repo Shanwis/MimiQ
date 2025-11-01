@@ -49,7 +49,6 @@ void QuantumCircuitParallel::Z(int target_qubit){
     if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
 
     size_t mask = 1<< target_qubit;
-    
     #pragma omp parallel for shared(mask)
     for(size_t i = 0; i < state_vector.size(); ++i){
         if((i&mask) != 0){
@@ -101,10 +100,11 @@ void QuantumCircuitParallel::S(int target_qubit){
 void QuantumCircuitParallel::T(int target_qubit) {
     if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
 
+    size_t mask = 1 << target_qubit;
     const complex<double> phase = polar(1.0, M_PI / 4.0);
     #pragma omp parallel for
     for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i >> target_qubit) & 1) {
+        if ((i&mask) != 0) {
             state_vector[i] *= phase;
         }
     }
@@ -114,11 +114,12 @@ void QuantumCircuitParallel::T(int target_qubit) {
 
 void QuantumCircuitParallel::Tdg(int target_qubit) {
     if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
-
+    
+    size_t mask = 1 << target_qubit;
     const complex<double> phase = polar(1.0, -M_PI / 4.0);
-    #pragma omp parallel for
+    #pragma omp parallel for shared(mask)
     for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i >> target_qubit) & 1) {
+        if ((mask&1)!=0) {
             state_vector[i] *= phase;
         }
     }

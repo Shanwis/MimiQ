@@ -104,7 +104,7 @@ Go to SourceForge abd install GNUPlot and add to the environment variables.
 
     To try running a code using the library inside the directory
     ```bash
-    make run PROGRAM=<program name>
+    make run PROGRAM=<program location/name>
     ```
 
     To run the benchmark program to compare the serial and parallel implementation:
@@ -248,7 +248,10 @@ Probability of |11>: 0.500000
 
 ```bash
 MimiQ/
-├── include/
+├── examples
+│   ├── bellstate.cpp
+│   └── superdensecoding.cpp
+├── include
 │   ├── QuantumCircuitBase.h
 │   ├── QuantumCircuitParallel.h
 │   └── QuantumCircuitSerial.h
@@ -265,7 +268,7 @@ MimiQ/
 ├── Makefile
 └── README.md
 
-4 directories, 13 files
+5 directories, 15 files
 ```
 
 ## Future Scope

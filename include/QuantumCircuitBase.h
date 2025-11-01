@@ -42,10 +42,10 @@ public:
     // Helper to print the current state vector
     void printState();
     void printCircuit();
-    void measureProbabilities();
+    void printProbabilities();
 
     void displayGraph();
-    void HeatMapRep();
+    void displayHeatMap();
 };
 
 #endif

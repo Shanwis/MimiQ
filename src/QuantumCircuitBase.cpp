@@ -40,7 +40,7 @@ void QuantumCircuitBase::printCircuit(){
     for(int i=0; i<qubit_count; i++){
         cout << 'q' << i << " " << circuit[i] << "\n";
     }
-    cout << "-----------------------";
+    cout << "-----------------------\n";
 }
 
 //collapse
@@ -93,7 +93,7 @@ void QuantumCircuitBase::measure_single_qubit(int qubit){
         }
     }
 
-    cout << "Measurement qubit " << qubit << " and got: " << measurement;
+    cout << "Measurement qubit " << qubit << " and got: " << measurement << "\n";
     addCircuit(qubit,'M',-1);
 }
 
@@ -160,7 +160,7 @@ void QuantumCircuitBase::displayGraph() {
     remove("prob_data.dat");
 }
 
-void QuantumCircuitBase::HeatMapRep() {
+void QuantumCircuitBase::displayHeatMap() {
     ofstream dataFile("prob_data.dat");
 
     int grid_size = 1 << (qubit_count/2);
@@ -206,7 +206,7 @@ void QuantumCircuitBase::HeatMapRep() {
     remove("prob_data.dat");
 }
 
-void QuantumCircuitBase::measureProbabilities(){
+void QuantumCircuitBase::printProbabilities(){
     vector<string> basis_states = generateBasisStates(qubit_count);
 
     cout << fixed << setprecision(6);

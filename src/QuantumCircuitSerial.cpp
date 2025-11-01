@@ -96,9 +96,10 @@ void QuantumCircuitSerial::S(int target_qubit){
 void QuantumCircuitSerial::T(int target_qubit) {
     if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
 
+    size_t mask = 1 << target_qubit;
     const complex<double> phase = polar(1.0, M_PI / 4.0);
     for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i >> target_qubit) & 1) {
+        if ((i&mask)!=0) {
             state_vector[i] *= phase;
         }
     }
@@ -109,9 +110,10 @@ void QuantumCircuitSerial::T(int target_qubit) {
 void QuantumCircuitSerial::Tdg(int target_qubit) {
     if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
 
+    size_t mask = 1 << target_qubit;
     const complex<double> phase = polar(1.0, -M_PI / 4.0);
     for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i >> target_qubit) & 1) {
+        if ((i&mask)!=0) {
             state_vector[i] *= phase;
         }
     }

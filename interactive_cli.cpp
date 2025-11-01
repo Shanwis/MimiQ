@@ -109,13 +109,13 @@ int main() {
                 break;
             case 5:
                 cout << "\nProbabilities of states." << endl;
-                qc.measureProbabilities();
+                qc.printProbabilities();
                 break;
             case 6:
                 qc.displayGraph();
                 break;
             case 7:
-                qc.HeatMapRep();
+                qc.displayHeatMap();
                 break;
             case 8:
                 running = false;
