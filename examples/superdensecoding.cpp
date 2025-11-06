@@ -12,6 +12,6 @@ int main(){
     qc.H(0);
 
     qc.printCircuit();
-    qc.measureProbabilities();
+    qc.printProbabilities();
     qc.displayGraph();
 }

@@ -9,5 +9,5 @@ int main(){
     qc.printCircuit();
     qc.printState();
 
-    qc.measureProbabilities();
+    qc.printProbabilities();
 }

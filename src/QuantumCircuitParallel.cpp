@@ -119,7 +119,7 @@ void QuantumCircuitParallel::Tdg(int target_qubit) {
     const complex<double> phase = polar(1.0, -M_PI / 4.0);
     #pragma omp parallel for shared(mask)
     for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((mask&1)!=0) {
+        if ((mask&i)!=0) {
             state_vector[i] *= phase;
         }
     }
