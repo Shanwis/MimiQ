@@ -102,9 +102,40 @@ void QuantumCircuitParallel::Tdg(int target_qubit) {
 }
 
 void QuantumCircuitParallel::Rz(int target_qubit, const double theta){
-    complex<double> p =I*theta;
-    applyPhase(target_qubit,exp(p));
+    const complex<double> c = polar(1.0,-theta/2.0);
+    const complex<double> s = polar(1.0,theta/2.0);
+
+    applySingleQubitOp(target_qubit,[&](auto &a, auto &b){
+        a = a*c;
+        b = b*s;}
+    );
     addCircuit(target_qubit,"Rz("+to_string(theta)+")");
+}
+
+void QuantumCircuitParallel::Rx(int target_qubit, const double theta){
+    const complex<double> c = {cos(theta/2.0),0.0};
+    const complex<double> s = {0.0,-sin(theta/2.0)};
+
+    applySingleQubitOp(target_qubit,[&](auto &a, auto &b){
+        complex<double> a_old = a;
+        complex<double> b_old = b;
+        a = c*a_old + s*b_old;
+        b = c*b_old + s*a_old;}
+    );
+    addCircuit(target_qubit,"Rx("+to_string(theta)+")");
+}
+
+void QuantumCircuitParallel::Ry(int target_qubit, const double theta){
+    const complex<double> c = {cos(theta/2.0),0.0};
+    const complex<double> s = {sin(theta/2.0),0.0};
+
+    applySingleQubitOp(target_qubit,[&](auto &a, auto &b){
+        complex<double> a_old = a;
+        complex<double> b_old = b;
+        a = c*a_old - s*b_old;
+        b = s*a_old + c*b_old;}
+    );
+    addCircuit(target_qubit,"Ry("+to_string(theta)+")");
 }
 
 //Type 4: Entangling gate
@@ -144,4 +175,45 @@ void QuantumCircuitParallel::CH(int control_qubit, int target_qubit){
 
     applyControlledQubitOp(control_qubit,target_qubit, op);
     addCircuit(control_qubit, "C", target_qubit, "H");
+}
+
+void QuantumCircuitParallel::CRz(int control_qubit, int target_qubit, const double theta){
+    complex<double> p = I*theta;
+
+    auto op = [&](complex<double> &a, complex<double> &b){
+        b *= exp(p);
+    };
+
+    applyControlledQubitOp(control_qubit,target_qubit, op);
+    addCircuit(control_qubit, "C", target_qubit, "Rz("+to_string(theta)+")");
+}
+
+void QuantumCircuitParallel::CRx(int control_qubit, int target_qubit, const double theta){
+    const complex<double> c = {cos(theta/2.0),0.0};
+    const complex<double> s = {0.0,-sin(theta/2.0)};
+
+    auto op = [&](complex<double> &a, complex<double> &b){
+        complex<double> a_old = a;
+        complex<double> b_old = b;
+        a = c*a_old + s*b_old;
+        b = c*b_old + s*a_old;
+    };
+
+    applyControlledQubitOp(control_qubit,target_qubit, op);
+    addCircuit(control_qubit, "C", target_qubit, "Rx("+to_string(theta)+")");
+}
+
+void QuantumCircuitParallel::CRy(int control_qubit, int target_qubit, const double theta){
+    const complex<double> c = {cos(theta/2.0),0.0};
+    const complex<double> s = {sin(theta/2.0),0.0};
+
+    auto op = [&](complex<double> &a, complex<double> &b){
+        complex<double> a_old = a;
+        complex<double> b_old = b;
+        a = c*a_old - s*b_old;
+        b = s*a_old + c*b_old;
+    };
+
+    applyControlledQubitOp(control_qubit,target_qubit, op);
+    addCircuit(control_qubit, "C", target_qubit, "Ry("+to_string(theta)+")");
 }

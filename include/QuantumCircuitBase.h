@@ -38,10 +38,15 @@ public:
     virtual void T(int target_qubit) = 0;
     virtual void Tdg(int target_qubit) = 0;
     virtual void Rz(int target_qubit, const double theta) = 0;
+    virtual void Rx(int target_qubit, const double theta) = 0;
+    virtual void Ry(int target_qubit, const double theta) = 0;
     virtual void CX(int control_qubit, int target_qubit) = 0;
     virtual void CZ(int control_qubit, int target_qubit) = 0;
     virtual void CH(int control_qubit, int target_qubit) = 0;
     virtual void CY(int control_qubit, int target_qubit) = 0;
+    virtual void CRx(int control_qubit, int target_qubit, const double theta) = 0;
+    virtual void CRy(int control_qubit, int target_qubit, const double theta) = 0;
+    virtual void CRz(int control_qubit, int target_qubit, const double theta) = 0;
     
     //measurement
     string collapse();

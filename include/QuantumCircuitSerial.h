@@ -22,6 +22,11 @@ public:
     void T(int target_qubit) override;
     void Tdg(int target_qubit) override;
     void Rz(int target_qubit, const double theta) override;
+    void Rx(int target_qubit, const double theta) override;
+    void Ry(int target_qubit, const double theta) override;
+    void CRx(int control_qubit, int target_qubit, const double theta) override;
+    void CRy(int control_qubit, int target_qubit, const double theta) override;
+    void CRz(int control_qubit, int target_qubit, const double theta) override;
 
 private:
     void applyPhase(int target_qubit, const complex<double>& phase);
