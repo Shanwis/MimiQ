@@ -34,15 +34,15 @@ public:
     virtual void T(int target_qubit) = 0;
     virtual void Tdg(int target_qubit) = 0;
     virtual void Rz(int target_qubit, const double theta) = 0;
-    virtual void CNOT(int control_qubit, int target_qubit) = 0;
+    virtual void CX(int control_qubit, int target_qubit) = 0;
     virtual void CZ(int control_qubit, int target_qubit) = 0;
     virtual void CH(int control_qubit, int target_qubit) = 0;
     virtual void CY(int control_qubit, int target_qubit) = 0;
     void addCircuit(int qubit, char gate, int t_qubit);
     
     //measurement
-    void collapse();
-    void measure_single_qubit(int qubit);
+    string collapse();
+    int measure_single_qubit(int qubit);
 
     // Helper to print the current state vector
     void printState();

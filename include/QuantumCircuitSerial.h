@@ -14,7 +14,7 @@ public:
     void X(int target_qubit) override;
     void Y(int target_qubit) override;
     void Z(int target_qubit) override;
-    void CNOT(int control_qubit, int target_qubit) override;
+    void CX(int control_qubit, int target_qubit) override;
     void CZ(int control_qubit, int target_qubit);
     void CH(int control_qubit, int target_qubit);
     void CY(int control_qubit, int target_qubit);

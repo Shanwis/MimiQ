@@ -44,7 +44,7 @@ void QuantumCircuitBase::printCircuit(){
 }
 
 //collapse
-void QuantumCircuitBase::collapse(){
+string QuantumCircuitBase::collapse(){
     vector<string> basis_states = generateBasisStates(qubit_count);
     vector<double> weights;
     for(auto &a:state_vector){
@@ -63,9 +63,10 @@ void QuantumCircuitBase::collapse(){
     for(int i=0; i<qubit_count; i++){
        circuit[i] += "[M]";
     }
+    return basis_states[index];
 }
 
-void QuantumCircuitBase::measure_single_qubit(int qubit){
+int QuantumCircuitBase::measure_single_qubit(int qubit){
     
     double prob_of_one = 0.0;
     size_t num_states = 1<<qubit_count;
@@ -95,6 +96,7 @@ void QuantumCircuitBase::measure_single_qubit(int qubit){
 
     cout << "Measurement qubit " << qubit << " and got: " << measurement << "\n";
     addCircuit(qubit,'M',-1);
+    return measurement;
 }
 
 //Helper functions

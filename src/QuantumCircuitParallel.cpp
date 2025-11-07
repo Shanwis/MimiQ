@@ -109,7 +109,7 @@ void QuantumCircuitParallel::Rz(int target_qubit, const double theta){
 
 //Type 4: Entangling gate
 
-void QuantumCircuitParallel::CNOT(int control_qubit, int target_qubit){
+void QuantumCircuitParallel::CX(int control_qubit, int target_qubit){
     applyControlledQubitOp(control_qubit,target_qubit, [](auto& a, auto& b){swap(a,b);});
     addCircuit(control_qubit, 'C', target_qubit);
 }
