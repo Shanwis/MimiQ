@@ -10,7 +10,7 @@
 using namespace std;
 
 // A simple struct to hold a gate operation for our random circuit
-enum GateType { H, X, Y, Z, S, T, Tdg, CNOT };
+enum GateType { H, X, Y, Z, S, T, Tdg, CX };
 struct GateOp {
     GateType type;
     int target;
@@ -27,7 +27,7 @@ void apply_gate_op(QuantumCircuitBase& qc, const GateOp& op) {
         case S: qc.S(op.target); break;
         case T: qc.T(op.target); break;
         case Tdg: qc.Tdg(op.target); break;
-        case CNOT: qc.CNOT(op.control, op.target); break;
+        case CX: qc.CX(op.control, op.target); break;
     }
 }
 
@@ -60,7 +60,7 @@ int main() {
 
     for (int i = 0; i < num_gates; ++i) {
         GateType type = static_cast<GateType>(gate_dist(gen));
-        if (type == CNOT) {
+        if (type == CX) {
             int control = qubit_dist(gen);
             int target = qubit_dist(gen);
             // Ensure control and target are not the same
