@@ -8,131 +8,141 @@ using namespace std;
 // Constructor with member initializer list
 QuantumCircuitSerial::QuantumCircuitSerial(int n) : QuantumCircuitBase(n) {}
 
-//Type 1: Pauli Gates
+const complex<double> I = (0.0,1.0);
 
-const complex<double> I(0.0,1.0);
+//Function for applying single qubit operations
 
-void QuantumCircuitSerial::X(int target_qubit) {
-    if(target_qubit >= qubit_count || target_qubit < 0) throw out_of_range("Qubit index out of range.");
+void QuantumCircuitSerial::applySingleQubitOp(int target_qubit, function<void(complex<double>&,complex<double>&)> op){
+    if(target_qubit<0 || target_qubit>=qubit_count) throw out_of_range("Target qubit is out of range");
 
-    size_t stride = 1 << (target_qubit + 1);
-    size_t block_size = 1 << target_qubit;
+    size_t block_size = 1<<target_qubit;
+    size_t stride = 1<<(target_qubit+1);
 
-    for(size_t i=0; i<state_vector.size(); i+=stride){
-        for(size_t j=0; j<block_size; j++){
-            swap(state_vector[i+j], state_vector[i+j+block_size]); //X gate swaps amplitudes
+    for(int i=0;i<state_vector.size();i+=stride){
+        for(int j=0;j<block_size;j++){
+            op(state_vector[i+j],state_vector[i+j+block_size]);
         }
     }
+}
+
+//Function applying phase
+
+void QuantumCircuitSerial::applyPhase(int target_qubit,const complex<double>& phase){
+    auto op = [&](auto &a, auto &b){
+        b*=phase;
+    };
+
+    applySingleQubitOp(target_qubit,op);
+}
+
+//Funcion for applying controlled operations
+
+void QuantumCircuitSerial::applyControlledQubitOp(int control_qubit, int target_qubit, function<void(complex<double>&, complex<double>&)> op){
+    if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
+
+    size_t control_mask = 1 << control_qubit;
+    size_t block_size = 1 << target_qubit;
+    size_t stride = 1<<(target_qubit+1);
+
+    #pragma omp parallel for
+    for(int i=0;i<state_vector.size();i+=stride){
+        for(int j=0;j<block_size;j++){
+            if(((i+j)&control_mask)!=0) op(state_vector[i+j],state_vector[i+j+block_size]);
+        }
+    }
+}
+
+//Type 1: Pauli Gates
+
+void QuantumCircuitSerial::X(int target_qubit) {
+    applySingleQubitOp(target_qubit,[](auto &a, auto &b){swap(a,b);});
     addCircuit(target_qubit, 'X', -1);
 }
 
 void QuantumCircuitSerial::Y(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-    
-    size_t stride = 1 << (target_qubit + 1);
-    size_t block_size = 1 << target_qubit;
-
-    for(size_t i = 0; i<state_vector.size(); i+=stride){
-        for(size_t j=0; j<block_size; ++j) {
-
-            //applying Y on relevent pairs
-            complex<double> a = state_vector[i+j];
-            complex<double> b = state_vector[i+j+block_size];
-            state_vector[i+j] = -I * b;
-            state_vector[i+j+block_size] = I * a;
-        }
-    }
+    applySingleQubitOp(target_qubit,[](auto &a, auto &b){
+        complex<double> b_old = b;
+        b=I*a;
+        a=-I*b_old;}
+    );
     addCircuit(target_qubit, 'Y', -1);
 }
 
 void QuantumCircuitSerial::Z(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-
-    size_t mask = 1<< target_qubit;
-    for(size_t i = 0; i < state_vector.size(); ++i){
-        if((i&mask) != 0){
-            //apply -1 phase
-            state_vector[i] *= -1.0;
-        }
-    }
+    applyPhase(target_qubit,(complex<double>)-1.0);
     addCircuit(target_qubit, 'Z', -1);
 }
 
-//Type 2: Superposition Gates
+//Type 2: Superposition Gate
 
 void QuantumCircuitSerial::H(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-
-    const complex<double> inv_sq_2 = 1.0 / sqrt(2.0);
-    size_t stride = 1 << (target_qubit + 1);
-    size_t block_size = 1 << target_qubit;
-
-    for(size_t i = 0; i<state_vector.size(); i+=stride){
-        for(size_t j=0; j<block_size; ++j) {
-            //applying Hadamard on relevent pairs
-            complex<double> a = state_vector[i+j];
-            complex<double> b = state_vector[i+j+block_size];
-            state_vector[i+j] = inv_sq_2 * (a+b);
-            state_vector[i+j+block_size] = inv_sq_2 * (a-b);
-        }
-    }
+    applySingleQubitOp(target_qubit,[](auto &a, auto &b){
+        complex<double> a_old = a;
+        complex<double> b_old = b;
+        a=(a_old+b_old)/sqrt(2);
+        b=(a_old-b_old)/sqrt(2);}
+    );
     addCircuit(target_qubit, 'H', -1);
 }
 
-//Type 3: Phase Gates
+//Type 3: Phase Gate 
 
 void QuantumCircuitSerial::S(int target_qubit){
-    if(target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits index out of range.");
-    size_t mask = 1<< target_qubit;
-    for(size_t i = 0; i < state_vector.size(); ++i){
-        if((i&mask) != 0){
-            //apply phase of I
-            state_vector[i] *= I;
-        }
-    }
+    applyPhase(target_qubit,I);
     addCircuit(target_qubit, 'S', -1);
 }
 
 void QuantumCircuitSerial::T(int target_qubit) {
-    if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
-
-    size_t mask = 1 << target_qubit;
-    const complex<double> phase = polar(1.0, M_PI / 4.0);
-    for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i&mask)!=0) {
-            state_vector[i] *= phase;
-        }
-    }
-
+    applyPhase(target_qubit,polar(1.0, M_PI / 4.0));
     addCircuit(target_qubit, 'T', -1);
 }
 
 void QuantumCircuitSerial::Tdg(int target_qubit) {
-    if (target_qubit < 0 || target_qubit >= qubit_count) throw out_of_range("Target qubit is out of range.");
-
-    size_t mask = 1 << target_qubit;
-    const complex<double> phase = polar(1.0, -M_PI / 4.0);
-    for (size_t i = 0; i < state_vector.size(); ++i) {
-        if ((i&mask)!=0) {
-            state_vector[i] *= phase;
-        }
-    }
-
+    applyPhase(target_qubit,polar(1.0, -M_PI / 4.0));
     addCircuit(target_qubit, 't', -1);
 }
 
-//Type 4: Entangling Gates
+void QuantumCircuitSerial::Rz(int target_qubit, const double theta){
+    complex<double> p =I*theta;
+    applyPhase(target_qubit,exp(p));
+    addCircuit(target_qubit,'R',-1);
+}
+
+//Type 4: Entangling gate
 
 void QuantumCircuitSerial::CNOT(int control_qubit, int target_qubit){
-    if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
+    applyControlledQubitOp(control_qubit,target_qubit, [](auto& a, auto& b){swap(a,b);});
+    addCircuit(control_qubit, 'C', target_qubit);
+}
 
-    size_t control_mask = 1 << control_qubit;
-    size_t target_mask = 1 << target_qubit;
+void QuantumCircuitSerial::CZ(int control_qubit, int target_qubit){
+    auto op = [](complex<double> &a, complex<double> &b){
+        b*=-1.0;
+    };
 
-    for(size_t i=0; i<state_vector.size(); ++i) {
-        if((i&control_mask) != 0){
-            if(i < (i^target_mask)) swap(state_vector[i], state_vector[i^target_mask]);
-        }
-    }
+    applyControlledQubitOp(control_qubit,target_qubit, op);
+    addCircuit(control_qubit, 'C', target_qubit);
+}
+
+void QuantumCircuitSerial::CY(int control_qubit, int target_qubit){
+    auto op = [](complex<double> &a, complex<double> &b){
+        complex<double> b_old = b;
+        b = I*a;
+        a = -I*b_old;
+    };
+
+    applyControlledQubitOp(control_qubit,target_qubit, op);
+    addCircuit(control_qubit, 'C', target_qubit);
+}
+
+void QuantumCircuitSerial::CH(int control_qubit, int target_qubit){
+    auto op = [](complex<double> &a, complex<double> &b){
+        complex<double> a_old = a;
+        complex<double> b_old = b;
+        a = (a_old+b_old)/sqrt(2);
+        b = (a_old-b_old)/sqrt(2);
+    };
+
+    applyControlledQubitOp(control_qubit,target_qubit, op);
     addCircuit(control_qubit, 'C', target_qubit);
 }

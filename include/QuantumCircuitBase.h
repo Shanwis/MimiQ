@@ -4,6 +4,7 @@
 #include<vector>
 #include<complex>
 #include<string>
+#include<functional>
 
 using namespace std;
 
@@ -32,7 +33,11 @@ public:
     virtual void S(int target_qubit) = 0;
     virtual void T(int target_qubit) = 0;
     virtual void Tdg(int target_qubit) = 0;
+    virtual void Rz(int target_qubit, const double theta) = 0;
     virtual void CNOT(int control_qubit, int target_qubit) = 0;
+    virtual void CZ(int control_qubit, int target_qubit) = 0;
+    virtual void CH(int control_qubit, int target_qubit) = 0;
+    virtual void CY(int control_qubit, int target_qubit) = 0;
     void addCircuit(int qubit, char gate, int t_qubit);
     
     //measurement
