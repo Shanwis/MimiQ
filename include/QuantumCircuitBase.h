@@ -20,6 +20,10 @@ protected:
     //Circuit
     vector<string> circuit;
 
+    //Add to the ASCII representation
+    void addCircuit(int qubit,const string &gate);
+    void addCircuit(int qubit1,const string &gate1, int qubit2, const string &gate2);
+
 public:
     //Constructor
     QuantumCircuitBase(int n);
@@ -38,7 +42,6 @@ public:
     virtual void CZ(int control_qubit, int target_qubit) = 0;
     virtual void CH(int control_qubit, int target_qubit) = 0;
     virtual void CY(int control_qubit, int target_qubit) = 0;
-    void addCircuit(int qubit, char gate, int t_qubit);
     
     //measurement
     string collapse();

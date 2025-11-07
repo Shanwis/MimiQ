@@ -21,7 +21,7 @@ void applyGate(QuantumCircuitParallel &qc, int qubit_count) {
             cin >> control;
             cout << "Enter target qubit: ";
             cin >> target;
-            qc.CNOT(control, target);
+            qc.CX(control, target);
             cout << "Applied CNOT(" << control << ", " << target << ")" << endl;
         } else {
             cout << "Enter target qubit: ";

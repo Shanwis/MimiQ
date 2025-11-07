@@ -26,12 +26,45 @@ QuantumCircuitBase::QuantumCircuitBase(int n) :
     state_vector[0] = 1.0; //Initialize the system to first state.
 }
 
-void QuantumCircuitBase::addCircuit(int qubit, char gate, int t_qubit = -1){
-    for(int i=0; i<qubit_count; i++){
-        if(i == qubit){ circuit[i] += "[" + string(1,gate) + "]"; }
-        else if (i==t_qubit){ circuit[i] += "[*]"; }
-        else if (i>qubit && i<t_qubit) { circuit[i] += "-+-";}
-        else circuit[i] += "---";
+void QuantumCircuitBase::addCircuit(int qubit, const string &gate){
+    string box_name = "["+gate+"]";
+    int gate_width = box_name.length();
+
+    // size_t max_length = 0;
+    // for(int i=0;i<qubit_count;i++){
+    //     max_length = max(max_length,circuit[i].length());
+    // }
+
+    for(int i=0;i<qubit_count;i++){
+        // int padding = max_length-circuit[i].length();
+        // circuit[i] += string(padding,'-');
+
+        if(i==qubit) circuit[i]+=box_name;
+        else circuit[i] += string(gate_width,'-');
+    }
+}
+
+void QuantumCircuitBase::addCircuit(int qubit1,const string &gate1, int qubit2,const string &gate2){
+
+    int max_gate_width = max(gate1.length(),gate2.length());
+    string seperator = "-+" + string(max_gate_width+1,'-');
+
+    string box_name_1 = "["+gate1+string(max_gate_width-gate1.length(),' ')+"]";
+    string box_name_2 = "["+gate2+string(max_gate_width-gate2.length(),' ')+"]";
+
+    // size_t max_length = 0;
+    // for(int i=0;i<qubit_count;i++){
+    //     max_length = max(max_length,circuit[i].length());
+    // }
+
+    for(int i=0;i<qubit_count;i++){
+        // int padding = max_length-circuit[i].length();
+        // circuit[i] += string(padding,'-');
+
+        if(i==qubit1) circuit[i]+=box_name_1;
+        else if(i>qubit1 && i<qubit2) circuit[i]+=seperator;
+        else if(i==qubit2) circuit[i]+=box_name_2;
+        else circuit[i]+= string(max_gate_width+2,'-');
     }
 }
 
@@ -95,7 +128,7 @@ int QuantumCircuitBase::measure_single_qubit(int qubit){
     }
 
     cout << "Measurement qubit " << qubit << " and got: " << measurement << "\n";
-    addCircuit(qubit,'M',-1);
+    addCircuit(qubit,"M");
     return measurement;
 }
 
