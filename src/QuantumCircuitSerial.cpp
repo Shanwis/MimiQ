@@ -3,12 +3,10 @@
 #include <cmath>
 #include <stdexcept>
 #include "../include/QuantumCircuitSerial.h"
+#include "../include/QuantumGates.h"
 using namespace std;
 
-// Constructor with member initializer list
 QuantumCircuitSerial::QuantumCircuitSerial(int n) : QuantumCircuitBase(n) {}
-
-const complex<double> I = (0.0,1.0);
 
 //Function for applying single qubit operations
 
@@ -23,16 +21,6 @@ void QuantumCircuitSerial::applySingleQubitOp(int target_qubit, function<void(co
             op(state_vector[i+j],state_vector[i+j+block_size]);
         }
     }
-}
-
-//Function applying phase
-
-void QuantumCircuitSerial::applyPhase(int target_qubit,const complex<double>& phase){
-    auto op = [&](auto &a, auto &b){
-        b*=phase;
-    };
-
-    applySingleQubitOp(target_qubit,op);
 }
 
 //Funcion for applying controlled operations
@@ -54,161 +42,95 @@ void QuantumCircuitSerial::applyControlledQubitOp(int control_qubit, int target_
 //Type 1: Pauli Gates
 
 void QuantumCircuitSerial::X(int target_qubit) {
-    applySingleQubitOp(target_qubit,[](auto &a, auto &b){swap(a,b);});
+    applySingleQubitOp(target_qubit,QuantumGates::X_Function());
     addCircuit(target_qubit, "X");
 }
 
 void QuantumCircuitSerial::Y(int target_qubit){
-    applySingleQubitOp(target_qubit,[](auto &a, auto &b){
-        complex<double> b_old = b;
-        b=I*a;
-        a=-I*b_old;}
-    );
+    applySingleQubitOp(target_qubit,QuantumGates::Y_Function());
     addCircuit(target_qubit, "Y");
 }
 
 void QuantumCircuitSerial::Z(int target_qubit){
-    applyPhase(target_qubit,(complex<double>)-1.0);
+    // applyPhase(target_qubit,(complex<double>)-1.0);
+    applySingleQubitOp(target_qubit,QuantumGates::Z_Function());
     addCircuit(target_qubit, "Z");
 }
 
 //Type 2: Superposition Gate
 
 void QuantumCircuitSerial::H(int target_qubit){
-    applySingleQubitOp(target_qubit,[](auto &a, auto &b){
-        complex<double> a_old = a;
-        complex<double> b_old = b;
-        a=(a_old+b_old)/sqrt(2);
-        b=(a_old-b_old)/sqrt(2);}
-    );
+    applySingleQubitOp(target_qubit,QuantumGates::H_Function());
     addCircuit(target_qubit, "H");
 }
 
 //Type 3: Phase Gate 
 
 void QuantumCircuitSerial::S(int target_qubit){
-    applyPhase(target_qubit,I);
+    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(QuantumGates::I));
     addCircuit(target_qubit, "S");
 }
 
 void QuantumCircuitSerial::T(int target_qubit) {
-    applyPhase(target_qubit,polar(1.0, M_PI / 4.0));
+    // applyPhase(target_qubit,polar(1.0, M_PI / 4.0));
+    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, M_PI / 4.0)));
     addCircuit(target_qubit, "T");
 }
 
 void QuantumCircuitSerial::Tdg(int target_qubit) {
-    applyPhase(target_qubit,polar(1.0, -M_PI / 4.0));
+    // applyPhase(target_qubit,polar(1.0, -M_PI / 4.0));
+    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, -M_PI / 4.0)));
     addCircuit(target_qubit, "Tdg");
 }
 
 void QuantumCircuitSerial::Rz(int target_qubit, const double theta){
-    complex<double> p =I*theta;
-    applyPhase(target_qubit,exp(p));
+    applySingleQubitOp(target_qubit,QuantumGates::Rz_Function(theta));
     addCircuit(target_qubit,"Rz("+to_string(theta)+")");
 }
 
 void QuantumCircuitSerial::Rx(int target_qubit, const double theta){
-    const complex<double> c = (cos(theta/2.0),0.0);
-    const complex<double> s = (0.0,-sin(theta/2.0));
-
-    applySingleQubitOp(target_qubit,[&](auto &a, auto &b){
-        complex<double> a_old = a;
-        complex<double> b_old = b;
-        a = c*a_old + s*b_old;
-        b = c*b_old + s*a_old;}
-    );
+    applySingleQubitOp(target_qubit,QuantumGates::Rx_Function(theta));
     addCircuit(target_qubit,"Rx("+to_string(theta)+")");
 }
 
 void QuantumCircuitSerial::Ry(int target_qubit, const double theta){
-    const complex<double> c = (cos(theta/2.0),0.0);
-    const complex<double> s = (sin(theta/2.0),0.0);
-
-    applySingleQubitOp(target_qubit,[&](auto &a, auto &b){
-        complex<double> a_old = a;
-        complex<double> b_old = b;
-        a = c*a_old - s*b_old;
-        b = s*a_old + c*b_old;}
-    );
+    applySingleQubitOp(target_qubit,QuantumGates::Ry_Function(theta));
     addCircuit(target_qubit,"Ry("+to_string(theta)+")");
 }
 
 //Type 4: Entangling gate
 
 void QuantumCircuitSerial::CX(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, [](auto& a, auto& b){swap(a,b);});
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::X_Function());
     addCircuit(control_qubit, "C", target_qubit, "X");
 }
 
 void QuantumCircuitSerial::CZ(int control_qubit, int target_qubit){
-    auto op = [](complex<double> &a, complex<double> &b){
-        b*=-1.0;
-    };
-
-    applyControlledQubitOp(control_qubit,target_qubit, op);
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Z_Function());
     addCircuit(control_qubit, "C", target_qubit, "Z");
 }
 
 void QuantumCircuitSerial::CY(int control_qubit, int target_qubit){
-    auto op = [](complex<double> &a, complex<double> &b){
-        complex<double> b_old = b;
-        b = I*a;
-        a = -I*b_old;
-    };
-
-    applyControlledQubitOp(control_qubit,target_qubit, op);
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Y_Function());
     addCircuit(control_qubit, "C", target_qubit, "Y");
 }
 
 void QuantumCircuitSerial::CH(int control_qubit, int target_qubit){
-    auto op = [](complex<double> &a, complex<double> &b){
-        complex<double> a_old = a;
-        complex<double> b_old = b;
-        a = (a_old+b_old)/sqrt(2);
-        b = (a_old-b_old)/sqrt(2);
-    };
-
-    applyControlledQubitOp(control_qubit,target_qubit, op);
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::H_Function());
     addCircuit(control_qubit, "C", target_qubit, "H");
 }
 
 void QuantumCircuitSerial::CRz(int control_qubit, int target_qubit, const double theta){
-    complex<double> p = I*theta;
-
-    auto op = [&](complex<double> &a, complex<double> &b){
-        b *= exp(p);
-    };
-
-    applyControlledQubitOp(control_qubit,target_qubit, op);
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Rz_Function(theta));
     addCircuit(control_qubit, "C", target_qubit, "Rz("+to_string(theta)+")");
 }
 
 void QuantumCircuitSerial::CRx(int control_qubit, int target_qubit, const double theta){
-    const complex<double> c = {cos(theta/2.0),0.0};
-    const complex<double> s = {0.0,-sin(theta/2.0)};
-
-    auto op = [&](complex<double> &a, complex<double> &b){
-        complex<double> a_old = a;
-        complex<double> b_old = b;
-        a = c*a_old + s*b_old;
-        b = c*b_old + s*a_old;
-    };
-
-    applyControlledQubitOp(control_qubit,target_qubit, op);
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Rx_Function(theta));
     addCircuit(control_qubit, "C", target_qubit, "Rx("+to_string(theta)+")");
 }
 
 void QuantumCircuitSerial::CRy(int control_qubit, int target_qubit, const double theta){
-    const complex<double> c = {cos(theta/2.0),0.0};
-    const complex<double> s = {sin(theta/2.0),0.0};
-
-    auto op = [&](complex<double> &a, complex<double> &b){
-        complex<double> a_old = a;
-        complex<double> b_old = b;
-        a = c*a_old - s*b_old;
-        b = s*a_old + c*b_old;
-    };
-
-    applyControlledQubitOp(control_qubit,target_qubit, op);
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Ry_Function(theta));
     addCircuit(control_qubit, "C", target_qubit, "Ry("+to_string(theta)+")");
 }

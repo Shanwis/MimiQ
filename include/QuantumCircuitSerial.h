@@ -29,7 +29,6 @@ public:
     void CRz(int control_qubit, int target_qubit, const double theta) override;
 
 private:
-    void applyPhase(int target_qubit, const complex<double>& phase);
     void applySingleQubitOp(int target_qubit, function<void(complex<double>&,complex<double>&)> op);
     void applyControlledQubitOp(int control_qubit, int target_qubit, function<void(complex<double>&, complex<double>&)> op);
 };
