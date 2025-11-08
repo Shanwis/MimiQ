@@ -35,8 +35,10 @@ public:
     virtual void Z(int target_qubit) = 0;
     virtual void Y(int target_qubit) = 0;
     virtual void S(int target_qubit) = 0;
+    virtual void Sdg(int target_qubit) = 0;
     virtual void T(int target_qubit) = 0;
     virtual void Tdg(int target_qubit) = 0;
+    virtual void P(int target_qubit, const double theta) = 0;
     virtual void Rz(int target_qubit, const double theta) = 0;
     virtual void Rx(int target_qubit, const double theta) = 0;
     virtual void Ry(int target_qubit, const double theta) = 0;
@@ -44,6 +46,11 @@ public:
     virtual void CZ(int control_qubit, int target_qubit) = 0;
     virtual void CH(int control_qubit, int target_qubit) = 0;
     virtual void CY(int control_qubit, int target_qubit) = 0;
+    virtual void CS(int control_qubit, int target_qubit) = 0;
+    virtual void CSdg(int control_qubit, int target_qubit) = 0;
+    virtual void CT(int control_qubit, int target_qubit) = 0;
+    virtual void CTdg(int control_qubit, int target_qubit) = 0;
+    virtual void CP(int control_qubit, int target_qubit, const double theta) = 0;
     virtual void CRx(int control_qubit, int target_qubit, const double theta) = 0;
     virtual void CRy(int control_qubit, int target_qubit, const double theta) = 0;
     virtual void CRz(int control_qubit, int target_qubit, const double theta) = 0;

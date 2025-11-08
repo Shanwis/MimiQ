@@ -19,11 +19,18 @@ public:
     void CH(int control_qubit, int target_qubit);
     void CY(int control_qubit, int target_qubit);
     void S(int target_qubit) override;
+    void Sdg(int target_qubit) override;
     void T(int target_qubit) override;
     void Tdg(int target_qubit) override;
+    void P(int target_qubit, const double theta) override;
     void Rz(int target_qubit, const double theta) override;
     void Rx(int target_qubit, const double theta) override;
     void Ry(int target_qubit, const double theta) override;
+    void CS(int control_qubit, int target_qubit) override;
+    void CSdg(int control_qubit, int target_qubit) override;
+    void CT(int control_qubit, int target_qubit) override;
+    void CTdg(int control_qubit, int target_qubit) override;
+    void CP(int control_qubit, int target_qubit, const double theta) override;
     void CRx(int control_qubit, int target_qubit, const double theta) override;
     void CRy(int control_qubit, int target_qubit, const double theta) override;
     void CRz(int control_qubit, int target_qubit, const double theta) override;

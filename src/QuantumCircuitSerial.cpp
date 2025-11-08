@@ -71,6 +71,11 @@ void QuantumCircuitSerial::S(int target_qubit){
     addCircuit(target_qubit, "S");
 }
 
+void QuantumCircuitSerial::Sdg(int target_qubit){
+    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(-1.0 * QuantumGates::I));
+    addCircuit(target_qubit, "S");
+}
+
 void QuantumCircuitSerial::T(int target_qubit) {
     // applyPhase(target_qubit,polar(1.0, M_PI / 4.0));
     applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, M_PI / 4.0)));
@@ -81,6 +86,11 @@ void QuantumCircuitSerial::Tdg(int target_qubit) {
     // applyPhase(target_qubit,polar(1.0, -M_PI / 4.0));
     applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, -M_PI / 4.0)));
     addCircuit(target_qubit, "Tdg");
+}
+
+void QuantumCircuitSerial::P(int target_qubit, const double theta){
+    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0,theta)));
+    addCircuit(target_qubit, "P");
 }
 
 void QuantumCircuitSerial::Rz(int target_qubit, const double theta){
@@ -105,6 +115,11 @@ void QuantumCircuitSerial::CX(int control_qubit, int target_qubit){
     addCircuit(control_qubit, "C", target_qubit, "X");
 }
 
+void QuantumCircuitSerial::CY(int control_qubit, int target_qubit){
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Y_Function());
+    addCircuit(control_qubit, "C", target_qubit, "Y");
+}
+
 void QuantumCircuitSerial::CZ(int control_qubit, int target_qubit){
     applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Z_Function());
     addCircuit(control_qubit, "C", target_qubit, "Z");
@@ -118,6 +133,31 @@ void QuantumCircuitSerial::CY(int control_qubit, int target_qubit){
 void QuantumCircuitSerial::CH(int control_qubit, int target_qubit){
     applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::H_Function());
     addCircuit(control_qubit, "C", target_qubit, "H");
+}
+
+void QuantumCircuitSerial::CS(int control_qubit, int target_qubit){
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(QuantumGates::I));
+    addCircuit(control_qubit, "C", target_qubit, "S");
+}
+
+void QuantumCircuitSerial::CSdg(int control_qubit, int target_qubit){
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(-1.0*QuantumGates::I));
+    addCircuit(control_qubit, "C", target_qubit, "Sdg");
+}
+
+void QuantumCircuitSerial::CT(int control_qubit, int target_qubit){
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,M_PI/4.0)));
+    addCircuit(control_qubit, "C", target_qubit, "T");
+}
+
+void QuantumCircuitSerial::CTdg(int control_qubit, int target_qubit){
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,-M_PI/4.0)));
+    addCircuit(control_qubit, "C", target_qubit, "Tdg");
+}
+
+void QuantumCircuitSerial::CP(int control_qubit, int target_qubit,const double theta){
+    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,theta)));
+    addCircuit(control_qubit, "C", target_qubit, "P("+to_string(theta)+")");
 }
 
 void QuantumCircuitSerial::CRz(int control_qubit, int target_qubit, const double theta){
