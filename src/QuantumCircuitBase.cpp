@@ -2,15 +2,11 @@
 #include <algorithm>
 #include <random>
 #include <cmath>
-#include <iomanip>
 #include <stdexcept>
-#include <fstream> // For std::ofstream
-#include <cstdlib> // For system()
 #include "../include/QuantumCircuitBase.h"
 #include "../include/QuantumGates.h"
+#include "../include/QuantumVisualization.h"
 using namespace std;
-
-constexpr double prob_threshold = 0.01;
 
 // Constructor with member initializer list
 QuantumCircuitBase::QuantumCircuitBase(int n) :
@@ -70,16 +66,12 @@ void QuantumCircuitBase::addCircuit(int qubit1,const string &gate1, int qubit2,c
 }
 
 void QuantumCircuitBase::printCircuit(){
-    cout << "--- Circuit Diagram ---\n";
-    for(int i=0; i<qubit_count; i++){
-        cout << 'q' << i << " " << circuit[i] << "\n";
-    }
-    cout << "-----------------------\n";
+    QuantumVisualization::printCircuit(circuit,qubit_count);
 }
 
 //collapse
 string QuantumCircuitBase::collapse(){
-    vector<string> basis_states = generateBasisStates(qubit_count);
+    vector<string> basis_states = QuantumVisualization::generateBasisStates(qubit_count);
     vector<double> weights;
     for(auto &a:state_vector){
         weights.push_back(norm(a));
@@ -133,134 +125,20 @@ int QuantumCircuitBase::measure_single_qubit(int qubit){
     return measurement;
 }
 
-//Helper functions
-vector<string> QuantumCircuitBase::generateBasisStates(int n){
-    vector<string> basis_states;
-    size_t num_states = 1<<n;
-    for(size_t i = 0; i<num_states; i++){
-        string basis = "";
-        int temp = i;
-        for(int j=0; j<n; j++){
-            basis += to_string(temp%2);
-            temp/=2;
-        }
-        reverse(basis.begin(), basis.end());
-        basis_states.push_back(basis);
-    }
-    return basis_states;
-}
-
 void QuantumCircuitBase::displayGraph() {
-    // Step 1: Write data to a temporary file
-    ofstream dataFile("prob_data.dat");
-    if (!dataFile.is_open()) {
-        cerr << "Error: Could not open data file for gnuplot." << endl;
-        return;
-    }
-
-    vector<string> basis_states = generateBasisStates(qubit_count);
-    for (size_t i = 0; i < state_vector.size(); ++i) {
-        // Gnuplot format: "Label" Value
-        double prob = norm(state_vector[i]);
-        if(prob>=prob_threshold){
-            dataFile << "\"" << basis_states[i] << "\" " << prob << "\n";
-        }
-    }
-    dataFile.close();
-
-    #ifdef _WIN32
-        string terminal = "set terminal qt size 800,600 font 'Verdana,10'; ";
-    #else
-        string terminal = "set terminal x11 size 800,600 font 'Verdana,10'; ";
-    #endif
-
-
-    // Step 2 & 3: Create a gnuplot command and execute it
-    string gnuplot_command = 
-        "gnuplot -e \""
-        + terminal +  // Use a modern terminal
-        "set title 'Quantum State Probabilities'; "
-        "set ylabel 'Probability'; "
-        "set xlabel 'Basis States'; "
-        "set yrange [0:1.1]; " // Set y-axis range from 0 to 1.1
-        "set style fill solid 0.5; " // Fill bars with a solid color
-        "set boxwidth 0.5; " // Set the width of the bars
-        "set xtics rotate by -45; " // Rotate x-axis labels for readability
-        "plot 'prob_data.dat' using 2:xtic(1) with boxes notitle, '' using (\\$0):(\\$2+0.05):(sprintf('%.3f',\\$2)) with labels font ',10' notitle; " // The main plot command
-        "pause -1 'Press Enter to continue...'; " // Keep the window open
-        "\"";
-
-    cout << "Displaying graph with gnuplot..." << endl;
-    system(gnuplot_command.c_str());
-
-    remove("prob_data.dat");
+    QuantumVisualization::displayGraph(state_vector,qubit_count);
 }
 
 void QuantumCircuitBase::displayHeatMap() {
-    ofstream dataFile("prob_data.dat");
-
-    int grid_size = 1 << (qubit_count/2);
-
-    if (!dataFile.is_open()) {
-        cerr << "Error: Could not open data file for gnuplot." << endl;
-        return;
-    }
-
-    for(int row=0; row<grid_size; ++row){
-        for(int col=0; col < grid_size; ++col){
-            size_t index = row * grid_size + col;
-            dataFile << norm(state_vector[index]) << " ";
-        }
-        dataFile << "\n"; 
-    }
-
-    dataFile.close();
-
-    #ifdef _WIN32
-        string terminal = "set terminal qt size 800,600 font 'Verdana,10'; ";
-    #else
-        string terminal = "set terminal x11 size 800,600 font 'Verdana,10'; ";
-    #endif
-
-
-    // Step 2 & 3: Create a gnuplot command and execute it
-    string gnuplot_command = 
-        "gnuplot -e \""
-        + terminal +  // Use a modern terminal
-        "set title 'Quantum State Probability heatmap';"
-        "unset xlabel; unset ylabel; unset xtics; unset ytics; "
-        "set palette defined (0 'black', 0.1 'dark-blue', 0.5 'yellow', 1 'white'); " // A nice color palette
-        "set cblabel 'Probability';"
-        "set cbrange [0:1];"
-        "plot 'prob_data.dat' matrix with image notitle; " // The main plot command
-        "pause -1 'Press Enter to continue...'; " // Keep the window open
-        "\"";
-
-    cout << "Displaying graph with gnuplot..." << endl;
-    system(gnuplot_command.c_str());
-
-    remove("prob_data.dat");
+    QuantumVisualization::displayHeatMap(state_vector,qubit_count);
 }
 
 void QuantumCircuitBase::printProbabilities(){
-    vector<string> basis_states = generateBasisStates(qubit_count);
-
-    cout << fixed << setprecision(6);
-    cout << qubit_count << "-Qubit Measurement Results" << "\n";
-    for(size_t i = 0; i<state_vector.size(); ++i) {
-        double prob = norm(state_vector[i]);
-        if(prob >= prob_threshold) cout << "Probability of |" << basis_states[i] << ">: " << prob << "\n";
-    }
-    cout << "----------------------------\n";
-    // displayGraph();
+    QuantumVisualization::printProbabilities(state_vector,qubit_count);
 }
 
 void QuantumCircuitBase::printState() {
-    cout << "Current State Vector" << "\n";
-    vector<string>basis_states = generateBasisStates(qubit_count);
-    for(size_t i=0; i<state_vector.size(); i++){
-        cout << "|" << basis_states[i] << "> :" << state_vector[i] << "\n";
-    }
+    QuantumVisualization::printState(state_vector,qubit_count);
 }
 
 //Function for applying single qubit operations

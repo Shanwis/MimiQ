@@ -14,9 +14,6 @@ protected:
     int qubit_count;
     vector<complex<double>> state_vector;
 
-    //Helper function to generate labels like "00", "01", etc
-    vector<string> generateBasisStates(int n);
-
     //Circuit
     vector<string> circuit;
 
