@@ -91,8 +91,7 @@ string QuantumCircuitBase::collapse(){
     discrete_distribution<> dist(weights.begin(), weights.end());
     int index = dist(gen);
     
-    fill(state_vector.begin(), state_vector.end(), 0.0);
-    state_vector[index] = 1.0;
+    resetAll(index);
     cout << basis_states[index] << "\n";
     for(int i=0; i<qubit_count; i++){
        circuit[i] += "[M]";
@@ -172,6 +171,11 @@ void QuantumCircuitBase::reset(int qubit){
     if(measurement == 1){
         X(qubit);
     }
+}
+
+void QuantumCircuitBase::resetAll(int qubit){
+    fill(state_vector.begin(), state_vector.end(), 0.0);
+    state_vector[qubit] = 1.0;
 }
 
 string QuantumCircuitBase::measure_range_of_qubits(const vector<int> &qubits){

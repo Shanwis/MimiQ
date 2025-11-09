@@ -77,6 +77,7 @@ public:
     //measurement of a subset of qubits for multiple runs
     std::map<std::string,int> run_range_of_qubits(int num_shots, const std::vector<int> &qubits);
     void reset(int qubit);
+    void resetAll(int qubit);
 
     // Helper to output probability amplitude
     std::complex<double> getProbAmplitude(const std::vector<std::complex<double>>& state_vector, int qubit){
