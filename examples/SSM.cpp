@@ -4,7 +4,7 @@
 #include<random>
 #include<omp.h>
 using namespace std;
-#define NUM_EPOCHS 10
+#define NUM_EPOCHS 200
 
 
 
@@ -33,62 +33,75 @@ double singleStep(QuantumCircuitParallel &qc,
     qc.CRy(1,0,params[4]);
     qc.CRz(1,0,params[5]);
     vector<int> args = {1};
+    qc.measure_single_qubit(0);
     e = qc.expectZ(args);
-    qc.measure_single_qubit(1);
     return e;
 }
 
 double paramShift(QuantumCircuitParallel &qc,
-    vector<double> &params,
-    double x,
-    double y,
-    double lr = .1)
+                  vector<double> &params,
+                  double x,
+                  double y,
+                  double lr = 0.1)
 {
-    double e1,e2,e;
-    double shift = M_PI/2;
-    double error = 0;
-    e = singleStep(qc,params,x);
-    for(int i =0;i<params.size();i++){
-        params[i] +=shift;
-        e1 = singleStep(qc,params,x);
-        params[i] -=2*shift;
-        e2 = singleStep(qc,params,x);
-        params[i] += lr*.5*(e1-e2);
-        error += (y-e)*(y-e);
+    double e = singleStep(qc, params, x);
+
+    const double shift = M_PI / 2.0;
+    vector<double> grads(params.size());
+
+    for (size_t i = 0; i < params.size(); ++i) {
+        double old = params[i];
+
+        params[i] = old + shift;
+        double e_plus = singleStep(qc, params, x);
+
+        params[i] = old - shift;
+        double e_minus = singleStep(qc, params, x);
+
+        // restore
+        params[i] = old;
+
+        // ∂e/∂θ_i
+        double de_dtheta = 0.5 * (e_plus - e_minus);
+        grads[i] = de_dtheta;
     }
-    return error;
+
+    double err = (y - e);
+    for (size_t i = 0; i < params.size(); ++i) {
+        params[i] += lr * err * (2.0 * grads[i]);
+    }
+
+    return err * err;
 }
 
 
 
-int main(){
-    std::random_device rd;  // Non-deterministic seed
-    QuantumCircuitParallel qc(2);
-    qc.H(1);
-    int n = 8;
+
+int main() {
+    std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<> dist(0.0, 1.0);
-    // std::normal_distribution<double> ndist(0,1);
+
+    const int n = 100;
     std::vector<double> values(n);
+    for (int i=0; i<n;i++){
+        values[i] = i/double(n);
+    }
+
+    QuantumCircuitParallel qc(2);
+
     vector<double> params(6);
-    for(auto & v: params){
-        v = dist(gen);
-    }
+    for (auto &p : params) p = dist(gen);
 
-    for (auto& v : values) {
-        v = dist(gen);
-    }
+    for (int epoch = 0; epoch < NUM_EPOCHS; ++epoch) {
+        double epoch_loss = 0.0;
 
-    //train loop
-    double error;
-    for(int i=0;i<NUM_EPOCHS;i++){
-        printf("\nEPOCH %d:\n",i);
-
-        for(int j=0;j<values.size()-1;j++){
-            int e = paramShift(qc,params,values[j],values[j+1]);
+        for (int j = 0; j < (int)values.size() - 1; ++j) {
+            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 0.01);
         }
-        error=sqrt(error)/((values.size()-1)*6);
-        printf("MAE: %d",error);
+
+        double rmse = std::sqrt(epoch_loss) / (values.size() - 1);
+        printf("\nEPOCH %d  RMSE: %.6f\n", epoch, rmse);
         printVector(params);
     }
     return 0;
