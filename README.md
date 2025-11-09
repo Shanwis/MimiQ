@@ -228,7 +228,7 @@ Your choice:
 
 Simply enter the number corresponding to the action you want to take. When applying gates, the program will prompt you for the gate type and the target/control qubits.
 
-## Example: Creating a Bell State (Entanglement)
+#### Example: Creating a Bell State (Entanglement)
 
 Here's how to create the famous entangled Bell state $\frac{1}{\sqrt{2}}(|00\rangle + |11\rangle)$:
 
@@ -310,16 +310,16 @@ Speedup: 3.03527x
 
 ### Base Class: `QuantumCircuitBase`
 
-| Category                           | Methods                                                                                        | Description                        |    |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------- | -- |
-| **Initialization**                 | `QuantumCircuitBase(int n)`                                                                    | Create an N-qubit system           |    |
-| **Single Qubit Gates**             | `H()`, `X()`, `Y()`, `Z()`, `S()`, `T()`, `P(theta)`                                           | Apply single-qubit transformations |    |
-| **Rotation Gates**                 | `Rx(theta)`, `Ry(theta)`, `Rz(theta)`                                                          | Rotation about X, Y, Z axes        |    |
-| **Controlled Gates**               | `CX()`, `CZ()`, `CH()`, `CY()`, `CS()`, `CT()`                                                 | Apply controlled operations        |    |
-| **Parameterized Controlled Gates** | `CP(theta)`, `CRx(theta)`, `CRy(theta)`, `CRz(theta)`                                          | Controlled rotations               |    |
-| **Measurement**                    | `collapse()`, `run(num_shots)`, `measure_single_qubit()`, `measure_range_of_qubits()`          | Perform measurements               |    |
-| **Reset**                          | `reset(int)`, `resetAll(int index)`                                                            | Reset qubits to                    | 0⟩ |
-| **Visualization**                  | `printCircuit()`, `printState()`, `printProbabilities()`, `displayGraph()`, `displayHeatMap()` | Display system information         |    |
+| Category                           | Methods                                                                                        | Description                        |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------- |
+| **Initialization**                 | `QuantumCircuitBase(int n)`                                                                    | Create an N-qubit system           |
+| **Single Qubit Gates**             | `H()`, `X()`, `Y()`, `Z()`, `S()`, `T()`, `P(theta)`                                           | Apply single-qubit transformations |
+| **Rotation Gates**                 | `Rx(theta)`, `Ry(theta)`, `Rz(theta)`                                                          | Rotation about X, Y, Z axes        | 
+| **Controlled Gates**               | `CX()`, `CZ()`, `CH()`, `CY()`, `CS()`, `CT()`                                                 | Apply controlled operations        | 
+| **Parameterized Controlled Gates** | `CP(theta)`, `CRx(theta)`, `CRy(theta)`, `CRz(theta)`                                          | Controlled rotations               |  
+| **Measurement**                    | `collapse()`, `run(num_shots)`, `measure_single_qubit()`, `measure_range_of_qubits()`          | Perform measurements               | 
+| **Reset**                          | `reset(int)`, `resetAll(int index)`                                                            | Reset qubits to |0⟩                |
+| **Visualization**                  | `printCircuit()`, `printState()`, `printProbabilities()`, `displayGraph()`, `displayHeatMap()` | Display system information         | 
 
 ### Parallel Class: `QuantumCircuitParallel`
 
