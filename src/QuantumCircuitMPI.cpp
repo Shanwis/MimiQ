@@ -1,7 +1,7 @@
 #include <mpi.h>
 #include <stdexcept>
 #include <cmath>
-#include "../include/QuantumCicuitMPI.h"
+#include "../include/QuantumCircuitMPI.h"
 #include "../include/QuantumGates.h"
 using namespace std;
 

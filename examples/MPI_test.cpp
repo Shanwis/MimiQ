@@ -24,5 +24,5 @@ int main(int argc, char* argv[]){
 }
 
 
-// mpic++ MPI_test.cpp src/QuantumCicuitMPI.cpp src/QuantumCircuitBase.cpp src/QuantumVisualization.cpp -Iinclude -o test
+// mpic++ MPI_test.cpp src/QuantumCircuitMPI.cpp src/QuantumCircuitBase.cpp src/QuantumVisualization.cpp -Iinclude -o test
 // mpirun -np 4 ./test
