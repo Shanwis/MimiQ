@@ -17,7 +17,7 @@ void printVector(vector<T> &a){
     cout<<endl;
 }
 double encoder(double x){
-    return x*3.14;
+    return 2*x*M_PI;
 }
 double singleStep(QuantumCircuitParallel &qc,
     vector<double> & params,
@@ -33,7 +33,8 @@ double singleStep(QuantumCircuitParallel &qc,
     qc.CRy(1,0,params[4]);
     qc.CRz(1,0,params[5]);
     vector<int> args = {1};
-    qc.measure_single_qubit(0);
+    // qc.measure_single_qubit(0);
+    qc.reset(0);
     e = qc.expectZ(args);
     return e;
 }
@@ -66,7 +67,7 @@ double paramShift(QuantumCircuitParallel &qc,
         grads[i] = de_dtheta;
     }
 
-    double err = (y - e);
+    double err = (2*y-1 - e);
     for (size_t i = 0; i < params.size(); ++i) {
         params[i] += lr * err * (2.0 * grads[i]);
     }
@@ -97,10 +98,10 @@ int main() {
         double epoch_loss = 0.0;
 
         for (int j = 0; j < (int)values.size() - 1; ++j) {
-            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 0.01);
+            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 1);
         }
 
-        double rmse = std::sqrt(epoch_loss) / (values.size() - 1);
+        double rmse = std::sqrt(epoch_loss) / (values.size() - .05);
         printf("\nEPOCH %d  RMSE: %.6f\n", epoch, rmse);
         printVector(params);
     }
