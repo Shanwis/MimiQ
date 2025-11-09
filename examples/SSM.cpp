@@ -1,6 +1,6 @@
 #include<iostream>
 #include<vector>
-#include "../include/QuantumCircuitParallel.h"
+#include <MimiQ/QuantumCircuitParallel.h>
 #include<random>
 #include<omp.h>
 using namespace std;

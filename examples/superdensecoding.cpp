@@ -1,4 +1,4 @@
-#include "../include/QuantumCircuitParallel.h"
+#include <MimiQ/QuantumCircuitParallel.h>
 #include<iostream>
 #include<string>
 #include<stdexcept>
