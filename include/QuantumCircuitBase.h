@@ -7,6 +7,8 @@
 #include<string>
 #include<functional>
 
+using namespace std;
+
 class QuantumCircuitBase {
 protected:
     //member var
@@ -80,6 +82,8 @@ public:
     std::complex<double> getProbAmplitude(const std::vector<std::complex<double>>& state_vector, int qubit){
         return state_vector[qubit];
     };
+
+    double expectZ(vector<int> &q);
     //Helpers for outputing results
     void printState(); //prints the entire state
     void printCircuit(); //prints the entire circuit

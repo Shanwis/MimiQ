@@ -24,6 +24,19 @@ QuantumCircuitBase::QuantumCircuitBase(int n) :
     state_vector[0] = 1.0; //Initialize the system to first state.
 }
 
+double QuantumCircuitBase::expectZ(vector<int> &q){
+    double expect = 0,normal;
+    for(int i=0;i<state_vector.size();i++){
+        int parity=0;
+        for(int j:q){
+            parity^=((i>>j)&1);
+        }
+        normal = norm(state_vector[i]);
+        expect += (parity ? -normal:normal);
+    }
+    return expect;
+}
+
 void QuantumCircuitBase::addCircuit(int qubit, const string &gate){
     string box_name = "["+gate+"]";
     int gate_width = box_name.length();
