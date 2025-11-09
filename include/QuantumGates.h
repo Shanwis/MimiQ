@@ -3,6 +3,7 @@
 #include <complex>
 #include <cmath>
 
+//This contains the gate functions used for operating on the state vectior matrix
 namespace QuantumGates {
 
     inline const std::complex<double> I(0.0,1.0);
