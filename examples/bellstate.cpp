@@ -1,4 +1,4 @@
-#include "include/QuantumCircuitParallel.h"
+#include "../include/QuantumCircuitParallel.h"
 
 int main(){
     QuantumCircuitParallel qc(2);

@@ -1,5 +1,5 @@
 # Makefile for Quantum Simulator and Benchmark
-CXX = g++
+CXX = mpic++
 CXXFLAGS = -Iinclude -fopenmp
 
 LIBDIR = lib
