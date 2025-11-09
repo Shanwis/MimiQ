@@ -4,7 +4,7 @@
 #include <omp.h>
 
 #include "./include/QuantumCircuitParallel.h"
-#include "./include/QuantumCircuitBase.h"
+#include "./include/QuantumCircuitMPI.h"
 
 using namespace std;
 
@@ -72,21 +72,6 @@ int main() {
         }
     }
 
-
-    // ---SERIAL VERSION ---
-    cout << "\n--- Running Serial Benchmark ---\n";
-    QuantumCircuitBase qc_serial(num_qubits);
-    double start_serial = omp_get_wtime();
-
-    for (const auto& op : random_circuit) {
-        apply_gate_op(qc_serial, op);
-    }
-
-    double end_serial = omp_get_wtime();
-    double serial_time = end_serial - start_serial;
-    cout << "Serial execution time: " << serial_time << " seconds\n";
-
-
     // ---PARALLEL VERSION ---
     cout << "\n--- Running Parallel Benchmark (" << num_threads << " threads) ---\n";
     QuantumCircuitParallel qc_parallel(num_qubits);
@@ -102,6 +87,18 @@ int main() {
     double parallel_time = end_parallel - start_parallel;
     cout << "Parallel execution time: " << parallel_time << " seconds\n";
 
+     // ---SERIAL VERSION ---
+    cout << "\n--- Running Serial Benchmark ---\n";
+    QuantumCircuitBase qc_serial(num_qubits);
+    double start_serial = omp_get_wtime();
+
+    for (const auto& op : random_circuit) {
+        apply_gate_op(qc_serial, op);
+    }
+
+    double end_serial = omp_get_wtime();
+    double serial_time = end_serial - start_serial;
+    cout << "Serial execution time: " << serial_time << " seconds\n";
 
     // ---CALCULATE AND DISPLAY SPEEDUP ---
     if (parallel_time > 0) {
