@@ -59,6 +59,7 @@ public:
     //measurement
     string collapse();
     int measure_single_qubit(int qubit);
+    string measure_range_of_qubits(const vector<int> &qubits);
 
     // Helper to print the current state vector
     void printState();

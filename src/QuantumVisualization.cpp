@@ -26,7 +26,7 @@ namespace QuantumVisualization{
         }
     }
 
-    void printCircuit(std::vector<std::string> circuit, int qubit_count){
+    void printCircuit(const std::vector<std::string> &circuit, int qubit_count){
         std::cout << "--- Circuit Diagram ---\n";
         for(int i=0; i<qubit_count; i++){
             std::cout << 'q' << i << " " << circuit[i] << "\n";

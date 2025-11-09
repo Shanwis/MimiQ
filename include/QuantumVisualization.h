@@ -12,7 +12,7 @@ namespace QuantumVisualization{
     std::vector<std::string> generateBasisStates(int n);
 
     void printState(const std::vector<std::complex<double>>& state_vector, int qubit_count);
-    void printCircuit(std::vector<std::string> circuit, int qubit_count);
+    void printCircuit(const std::vector<std::string>& circuit, int qubit_count);
     void printProbabilities(const std::vector<std::complex<double>>& state_vector, int qubit_count);
 
     void displayGraph(const std::vector<std::complex<double>>& state_vector, int qubit_count);
