@@ -1,4 +1,4 @@
-#include "../include/QuantumVisualization.h"
+#include <MimiQ/QuantumVisualization.h>
 #include <fstream>
 #include <cstdlib>
 #include <iomanip>

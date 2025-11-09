@@ -4,9 +4,9 @@
 #include <cmath>
 #include <map>
 #include <stdexcept>
-#include "../include/QuantumCircuitBase.h"
-#include "../include/QuantumGates.h"
-#include "../include/QuantumVisualization.h"
+#include <MimiQ/QuantumCircuitBase.h>
+#include <MimiQ/QuantumGates.h>
+#include <MimiQ/QuantumVisualization.h>
 using namespace std;
 
 // Constructor with member initializer list
@@ -173,9 +173,9 @@ void QuantumCircuitBase::reset(int qubit){
     }
 }
 
-void QuantumCircuitBase::resetAll(int qubit){
+void QuantumCircuitBase::resetAll(int index = 0){
     fill(state_vector.begin(), state_vector.end(), 0.0);
-    state_vector[qubit] = 1.0;
+    state_vector[index] = 1.0;
 }
 
 string QuantumCircuitBase::measure_range_of_qubits(const vector<int> &qubits){

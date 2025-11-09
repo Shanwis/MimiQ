@@ -1,8 +1,9 @@
 #include <omp.h>
 #include <stdexcept>
 #include <cmath>
-#include "../include/QuantumCircuitParallel.h"
-#include "../include/QuantumGates.h"
+#include <MimiQ/QuantumCircuitParallel.h>
+#include <MimiQ/QuantumGates.h>
+
 using namespace std;
 
 QuantumCircuitParallel::QuantumCircuitParallel(int n) : QuantumCircuitBase(n) {}

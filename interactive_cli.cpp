@@ -1,8 +1,8 @@
 #include <iostream>
 #include <limits>
 #include <algorithm>
-#include "./include/QuantumCircuitParallel.h"
-#include "./include/QuantumCircuitBase.h"
+#include <MimiQ/QuantumCircuitParallel.h>
+#include <MimiQ/QuantumCircuitBase.h>
 using namespace std;
 
 // Function to handle gate application logic
