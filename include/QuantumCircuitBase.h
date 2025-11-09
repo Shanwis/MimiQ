@@ -2,6 +2,7 @@
 #define QUANTUMCIRCUITBASE_H
 
 #include<vector>
+#include<map>
 #include<complex>
 #include<string>
 #include<functional>
@@ -20,6 +21,7 @@ protected:
     //Add to the ASCII representation
     void addCircuit(int qubit,const string &gate);
     void addCircuit(int qubit1,const string &gate1, int qubit2, const string &gate2);
+    void alignCircuitColumns();
 
     //For performing operations
     virtual void applySingleQubitOp(int target_qubit, function<void(complex<double>&,complex<double>&)> op);
@@ -58,10 +60,17 @@ public:
     
     //measurement
     string collapse();
+    map<string,int> run(int num_shots);
     int measure_single_qubit(int qubit);
     string measure_range_of_qubits(const vector<int> &qubits);
+    map<string,int> run_range_of_qubits(int num_shots, const vector<int> &qubits);
+    void reset(int qubit);
 
     // Helper to print the current state vector
+    std::complex<double> getProbAmplitude(const std::vector<std::complex<double>>& state_vector, int qubit){
+        return state_vector[qubit];
+    };
+
     void printState();
     void printCircuit();
     void printProbabilities();

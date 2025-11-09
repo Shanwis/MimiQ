@@ -28,15 +28,8 @@ void QuantumCircuitBase::addCircuit(int qubit, const string &gate){
     string box_name = "["+gate+"]";
     int gate_width = box_name.length();
 
-    size_t max_length = 0;
+    alignCircuitColumns();
     for(int i=0;i<qubit_count;i++){
-        max_length = max(max_length,circuit[i].length());
-    }
-
-    for(int i=0;i<qubit_count;i++){
-        int padding = max_length-circuit[i].length();
-        circuit[i] += string(padding,'-');
-
         if(i==qubit) circuit[i]+=box_name;
         else circuit[i] += string(gate_width,'-');
     }
@@ -50,20 +43,21 @@ void QuantumCircuitBase::addCircuit(int qubit1,const string &gate1, int qubit2,c
     string box_name_1 = "["+gate1+string(max_gate_width-gate1.length(),' ')+"]";
     string box_name_2 = "["+gate2+string(max_gate_width-gate2.length(),' ')+"]";
 
-    size_t max_length = 0;
-    for(int i=0;i<qubit_count;i++){
-        max_length = max(max_length,circuit[i].length());
-    }
+    alignCircuitColumns();
 
     for(int i=0;i<qubit_count;i++){
-        int padding = max_length-circuit[i].length();
-        circuit[i] += string(padding,'-');
 
         if(i==qubit1) circuit[i]+=box_name_1;
         else if(i>qubit1 && i<qubit2) circuit[i]+=seperator;
         else if(i==qubit2) circuit[i]+=box_name_2;
         else circuit[i]+= string(max_gate_width+2,'-');
     }
+}
+
+void QuantumCircuitBase::alignCircuitColumns(){
+    size_t max_length = 0;
+    for(auto &line:circuit) max_length = max(max_length, line.length()); 
+    for(auto &line:circuit) line += string(max_length-line.length(),'-');
 }
 
 void QuantumCircuitBase::printCircuit(){
@@ -91,6 +85,39 @@ string QuantumCircuitBase::collapse(){
        circuit[i] += "[M]";
     }
     return basis_states[index];
+}
+
+string index_to_basis_string(size_t index, int qubit_count) {
+    string basis_str(qubit_count, '0');
+    for (int i = 0; i < qubit_count; ++i) {
+        if ((index >> i) & 1) {
+            basis_str[qubit_count - 1 - i] = '1';
+        }
+    }
+    return basis_str;
+}
+
+map<string,int> QuantumCircuitBase::run(int num_shots){
+    vector<double> probabilities;
+    for(auto &amplitude:state_vector){
+        probabilities.push_back(norm(amplitude));
+    }
+
+    static random_device rd;
+    static mt19937 gen(rd());
+    discrete_distribution<> dist(probabilities.begin(), probabilities.end());
+
+    map<string,int> result;
+    for(int i=0;i<num_shots;i++){
+        int value = dist(gen);
+        result[index_to_basis_string(value, qubit_count)]++;
+    }
+
+    for(int i=0; i<qubit_count; i++){
+       circuit[i] += "[M]";
+    }
+
+    return result;
 }
 
 int QuantumCircuitBase::measure_single_qubit(int qubit){
@@ -126,9 +153,16 @@ int QuantumCircuitBase::measure_single_qubit(int qubit){
     return measurement;
 }
 
+
+void QuantumCircuitBase::reset(int qubit){
+    int measurement = measure_single_qubit(qubit);
+    if(measurement == 1){
+        X(qubit);
+    }
+}
+
 string QuantumCircuitBase::measure_range_of_qubits(const vector<int> &qubits){
 
-    vector<string> basis_states = QuantumVisualization::generateBasisStates(qubit_count);
     size_t mask = 0;
     for(auto& q:qubits) mask |= 1<<q;
     map<size_t,double> prob;
@@ -171,6 +205,47 @@ string QuantumCircuitBase::measure_range_of_qubits(const vector<int> &qubits){
     return output;
 }
 
+map<string,int> QuantumCircuitBase::run_range_of_qubits(int num_shots, const vector<int> &qubits){
+
+    size_t mask = 0;
+    for(auto& q:qubits) mask |= 1<<q;
+    map<size_t,double> prob;
+
+    size_t num_states = 1<<qubit_count;
+
+    for(size_t i=0; i<num_states; i++){
+        prob[i&mask] += norm(state_vector[i]);
+    }
+
+    vector<size_t> outcomes;
+    vector<double> weights;
+
+    for(auto &a: prob){
+        outcomes.push_back(a.first);
+        weights.push_back(a.second);
+    }
+
+    map<string,int> result;
+
+    static random_device rd;
+    static mt19937 gen(rd());
+    discrete_distribution<> dist(weights.begin(),weights.end());
+
+    for(int i=0;i<num_shots;i++){
+        size_t index = dist(gen);
+        double norm_factor = sqrt(weights[index]);
+        size_t measurement = outcomes[index];
+
+        string output;
+        for(int q:qubits){
+            output += (((measurement>>q) & 1) ? '1' : '0'); //Measurement returned in the same order as the qubits input vector
+        }
+        result[output]++;
+    }
+    for(auto &q: qubits) circuit[q] += "[M]";
+    return result;
+}
+
 
 void QuantumCircuitBase::displayGraph() {
     QuantumVisualization::displayGraph(state_vector,qubit_count);
@@ -193,8 +268,8 @@ void QuantumCircuitBase::printState() {
 void QuantumCircuitBase::applySingleQubitOp(int target_qubit, function<void(complex<double>&,complex<double>&)> op){
     if(target_qubit<0 || target_qubit>=qubit_count) throw out_of_range("Target qubit is out of range");
 
-    size_t block_size = 1<<target_qubit;
-    size_t stride = 1<<(target_qubit+1);
+    size_t block_size = 1ULL<<target_qubit;
+    size_t stride = 1ULL<<(target_qubit+1);
 
     for(size_t i=0;i<state_vector.size();i+=stride){
         for(size_t j=0;j<block_size;j++){
@@ -208,9 +283,9 @@ void QuantumCircuitBase::applySingleQubitOp(int target_qubit, function<void(comp
 void QuantumCircuitBase::applyControlledQubitOp(int control_qubit, int target_qubit, function<void(complex<double>&, complex<double>&)> op){
     if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
 
-    size_t control_mask = 1 << control_qubit;
-    size_t block_size = 1 << target_qubit;
-    size_t stride = 1<<(target_qubit+1);
+    size_t control_mask = 1ULL << control_qubit;
+    size_t block_size = 1ULL << target_qubit;
+    size_t stride = 1ULL <<(target_qubit+1);
 
     for(size_t i=0;i<state_vector.size();i+=stride){
         for(size_t j=0;j<block_size;j++){
