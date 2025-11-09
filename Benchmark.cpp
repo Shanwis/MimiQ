@@ -3,7 +3,6 @@
 #include <random> 
 #include <omp.h>
 
-#include "./include/QuantumCircuitSerial.h"
 #include "./include/QuantumCircuitParallel.h"
 #include "./include/QuantumCircuitBase.h"
 
@@ -76,7 +75,7 @@ int main() {
 
     // ---SERIAL VERSION ---
     cout << "\n--- Running Serial Benchmark ---\n";
-    QuantumCircuitSerial qc_serial(num_qubits);
+    QuantumCircuitBase qc_serial(num_qubits);
     double start_serial = omp_get_wtime();
 
     for (const auto& op : random_circuit) {

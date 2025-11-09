@@ -1,7 +1,6 @@
 #include <iostream>
 #include <limits>
 #include <algorithm>
-#include "./include/QuantumCircuitSerial.h"
 #include "./include/QuantumCircuitParallel.h"
 #include "./include/QuantumCircuitBase.h"
 using namespace std;
