@@ -1,5 +1,5 @@
 #include <iostream>
-#include "include/QuantumCicuitMPI.h"
+#include "../include/QuantumCircuitMPI.h"
 #include <mpi.h>
 
 int main(int argc, char* argv[]){
