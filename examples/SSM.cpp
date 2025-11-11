@@ -69,7 +69,8 @@ double paramShift(QuantumCircuitParallel &qc,
 
     double err = (2*y-1 - e);
     for (size_t i = 0; i < params.size(); ++i) {
-        params[i] += lr * err * (2.0 * grads[i]);
+        params[i] += lr * err * grads[i];
+	params[i] = fmod(params[i], 2*M_PI);
     }
 
     return err * err;
@@ -98,7 +99,7 @@ int main() {
         double epoch_loss = 0.0;
 
         for (int j = 0; j < (int)values.size() - 1; ++j) {
-            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 0.1);
+            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 0.99);
         }
 
         double rmse = std::sqrt(epoch_loss) / (values.size() - 1);
