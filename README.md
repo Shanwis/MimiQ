@@ -25,6 +25,8 @@ The repository also includes a command-line application that serves as a demonst
         * Entangling Gates: **CX(CNOT), CY, CZ, CH**
         * Controlled Phase: **CS, CS-dagger, CT, CT-dagger, CP**
         * Controlled Rotations: **CRx, CRy, CRz**
+    * **2-Qubit Gates**:
+        * Swap Gates: **SWAP, iSWAP**
 * **Measurement Modes**:
     1. **Run**: Simulate n shots to get a statistical distribution of outcomes without destroying the state.
     2. **Collapse**: Simulate a destructive measurement, collapsing the wave function to a single, definite state.
@@ -318,7 +320,7 @@ Speedup: 3.03527x
 | **Controlled Gates**               | `CX()`, `CZ()`, `CH()`, `CY()`, `CS()`, `CT()`                                                 | Apply controlled operations        | 
 | **Parameterized Controlled Gates** | `CP(theta)`, `CRx(theta)`, `CRy(theta)`, `CRz(theta)`                                          | Controlled rotations               |  
 | **Measurement**                    | `collapse()`, `run(num_shots)`, `measure_single_qubit()`, `measure_range_of_qubits()`          | Perform measurements               | 
-| **Reset**                          | `reset(int)`, `resetAll(int index)`                                                            | Reset qubits to |0⟩                |
+| **Reset**                          | `reset(int)`, `resetAll(int index)`                                                            | Reset qubits to 0                |
 | **Visualization**                  | `printCircuit()`, `printState()`, `printProbabilities()`, `displayGraph()`, `displayHeatMap()` | Display system information         | 
 
 ### Parallel Class: `QuantumCircuitParallel`

@@ -7,8 +7,6 @@
 #include<string>
 #include<functional>
 
-using namespace std;
-
 class QuantumCircuitBase {
 protected:
     //member var
@@ -28,6 +26,8 @@ protected:
     //for single qubit operations
     virtual void applySingleQubitOp(int target_qubit, std::function<void(std::complex<double>&,std::complex<double>&)> op);
     //For two qubit operations
+    virtual void applyTwoQubitOp(int qubit_1, int qubit_2, std::function<void(std::complex<double>&,std::complex<double>&, std::complex<double>&,std::complex<double>&)> op);
+    //For controlled two qubit operations
     virtual void applyControlledQubitOp(int control_qubit, int target_qubit, std::function<void(std::complex<double>&, std::complex<double>&)> op);
 
 public:
@@ -65,7 +65,10 @@ public:
     virtual void CRx(int control_qubit, int target_qubit, const double theta);
     virtual void CRy(int control_qubit, int target_qubit, const double theta);
     virtual void CRz(int control_qubit, int target_qubit, const double theta);
-    
+    //Two qubit gates
+    virtual void SWAP(int qubit_1, int qubit_2);
+    virtual void iSWAP(int qubit_1, int qubit_2);
+
     //destructive measurement
     std::string collapse();
     //measurement for multiple runs

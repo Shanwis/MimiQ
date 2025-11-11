@@ -295,10 +295,43 @@ void QuantumCircuitBase::applySingleQubitOp(int target_qubit, function<void(comp
     }
 }
 
+//Function for two qubit operations
+
+void QuantumCircuitBase::applyTwoQubitOp(int qubit_1, int qubit_2, function<void(complex<double>&,complex<double>&,complex<double>&,complex<double>&)> op){
+    if(qubit_1 >= qubit_count || qubit_1 < 0 || qubit_2 >= qubit_count || qubit_2 <0) throw out_of_range("Qubits out of range.");
+    if(qubit_1 == qubit_2) throw invalid_argument("Qubits cannot be the same");
+
+    size_t q_b = max(qubit_1,qubit_2);
+    size_t q_a = min(qubit_1,qubit_2);
+
+    size_t outer_stride = 1 << (q_b+1);
+    size_t inner_stride = 1 << (q_a+1);
+
+    size_t bit_b = 1<<q_b;
+    size_t bit_a = 1<<q_a;
+
+    for(int i = 0; i<state_vector.size(); i+= outer_stride){
+        for(int j = 0; j<bit_b; j+= inner_stride){
+            for(int k = 0;k<bit_a; k++){
+                int indbase = i+j+k;
+
+                int ind00 = indbase;
+                int ind01 = indbase + bit_a;
+                int ind10 = indbase + bit_b;
+                int ind11 = indbase + bit_a + bit_b;
+
+                if(q_b == qubit_1) op(state_vector[ind00],state_vector[ind01],state_vector[ind10], state_vector[ind11]);
+                else op(state_vector[ind00],state_vector[ind10],state_vector[ind01], state_vector[ind11]);
+            }
+        }
+    }
+}
+
 //Funcion for applying controlled operations
 
 void QuantumCircuitBase::applyControlledQubitOp(int control_qubit, int target_qubit, function<void(complex<double>&, complex<double>&)> op){
-    if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0 || control_qubit == target_qubit) throw out_of_range("Qubits out of range.");
+    if(control_qubit >= qubit_count || control_qubit < 0 || target_qubit >= qubit_count || target_qubit <0) throw out_of_range("Qubits out of range.");
+    if(control_qubit == target_qubit) throw invalid_argument("Control and target qubits cannot be the same.");
 
     size_t control_mask = 1ULL << control_qubit;
     size_t block_size = 1ULL << target_qubit;
@@ -439,4 +472,11 @@ void QuantumCircuitBase::CRy(int control_qubit, int target_qubit, const double t
     addCircuit(control_qubit, "C", target_qubit, "Ry("+to_string(theta)+")");
 }
 
+void QuantumCircuitBase::SWAP(int qubit_1, int qubit_2){
+    applyTwoQubitOp(qubit_1, qubit_2, QuantumGates::SWAP_Function());
+}
+
+void QuantumCircuitBase::iSWAP(int qubit_1, int qubit_2){
+    applyTwoQubitOp(qubit_1, qubit_2, QuantumGates::iSWAP_Function());
+}
 

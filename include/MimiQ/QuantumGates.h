@@ -72,5 +72,18 @@ namespace QuantumGates {
         };
     }
 
+    inline auto SWAP_Function(){
+        return [](auto &a, auto &b, auto &c, auto &d){
+            std::swap(b,c);
+        };
+    }
+
+    inline auto iSWAP_Function(){
+        return [](auto &a, auto &b, auto &c, auto &d){
+            std::swap(b,c);
+            b = I*b;
+            c = I*c;
+        };
+    }
 }
 #endif
