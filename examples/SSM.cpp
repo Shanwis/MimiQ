@@ -98,10 +98,10 @@ int main() {
         double epoch_loss = 0.0;
 
         for (int j = 0; j < (int)values.size() - 1; ++j) {
-            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 1);
+            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 0.1);
         }
 
-        double rmse = std::sqrt(epoch_loss) / (values.size() - .05);
+        double rmse = std::sqrt(epoch_loss) / (values.size() - 1);
         printf("\nEPOCH %d  RMSE: %.6f\n", epoch, rmse);
         printVector(params);
     }
