@@ -34,8 +34,9 @@ double singleStep(QuantumCircuitParallel &qc,
     qc.CRz(1,0,params[5]);
     vector<int> args = {1};
     // qc.measure_single_qubit(0);
-    qc.reset(0);
     e = qc.expectZ(args);
+    qc.reset(0);
+
     return e;
 }
 
@@ -67,7 +68,8 @@ double paramShift(QuantumCircuitParallel &qc,
         grads[i] = de_dtheta;
     }
 
-    double err = (2*y-1 - e);
+    // double err = (2*y-1 - e);
+    double err = y - e;
     for (size_t i = 0; i < params.size(); ++i) {
         params[i] += lr * err * grads[i];
 	params[i] = fmod(params[i], 2*M_PI);
@@ -87,7 +89,7 @@ int main() {
     const int n = 100;
     std::vector<double> values(n);
     for (int i=0; i<n;i++){
-        values[i] = i/double(n);
+        values[i] = 0.5 * (1.0 + sin(2 * M_PI * i / n));
     }
 
     QuantumCircuitParallel qc(2);
@@ -99,7 +101,7 @@ int main() {
         double epoch_loss = 0.0;
 
         for (int j = 0; j < (int)values.size() - 1; ++j) {
-            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 0.99);
+            epoch_loss += paramShift(qc, params, values[j], values[j + 1], 1e-1);
         }
 
         double rmse = std::sqrt(epoch_loss) / (values.size() - 1);
