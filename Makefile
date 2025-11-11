@@ -3,7 +3,7 @@ CXX = mpic++
 CXXFLAGS = -Iinclude -fopenmp
 
 LIBDIR = lib
-LIBNAME = libMimiQ.a
+LIBNAME = libMaQrel.a
 SRCDIR = src
 OBJDIR = obj
 BINDIR = bin
@@ -41,10 +41,10 @@ MAIN_BENCH_OBJ = $(OBJDIR)/$(MAIN_BENCH_SRC:.cpp=.o)
 all: lib $(TARGET_RUN) $(TARGET_BENCH)
 
 $(TARGET_RUN): $(MAIN_RUN_OBJ) lib
-	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_RUN_OBJ) -L$(LIBDIR) -lMimiQ
+	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_RUN_OBJ) -L$(LIBDIR) -lMaQrel
 
 $(TARGET_BENCH): $(MAIN_BENCH_OBJ) lib
-	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_BENCH_OBJ) -L$(LIBDIR) -lMimiQ
+	$(CXX) $(CXXFLAGS) -o $@ $(MAIN_BENCH_OBJ) -L$(LIBDIR) -lMaQrel
 
 $(MAIN_RUN_OBJ): $(PROGRAM)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

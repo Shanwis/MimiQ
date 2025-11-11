@@ -1,5 +1,5 @@
 #include <iostream>
-#include <MimiQ/QuantumCircuitMPI.h>
+#include <MaQrel/QuantumCircuitMPI.h>
 #include <mpi.h>
 
 int main(int argc, char* argv[]){

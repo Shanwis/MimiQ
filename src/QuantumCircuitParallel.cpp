@@ -1,8 +1,8 @@
 #include <omp.h>
 #include <stdexcept>
 #include <cmath>
-#include <MimiQ/QuantumCircuitParallel.h>
-#include <MimiQ/QuantumGates.h>
+#include <MaQrel/QuantumCircuitParallel.h>
+#include <MaQrel/QuantumGates.h>
 
 using namespace std;
 

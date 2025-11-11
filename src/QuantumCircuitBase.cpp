@@ -4,9 +4,9 @@
 #include <cmath>
 #include <map>
 #include <stdexcept>
-#include <MimiQ/QuantumCircuitBase.h>
-#include <MimiQ/QuantumGates.h>
-#include <MimiQ/QuantumVisualization.h>
+#include <MaQrel/QuantumCircuitBase.h>
+#include <MaQrel/QuantumGates.h>
+#include <MaQrel/QuantumVisualization.h>
 using namespace std;
 
 // Constructor with member initializer list

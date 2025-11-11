@@ -1,8 +1,8 @@
 #include <mpi.h>
 #include <stdexcept>
 #include <cmath>
-#include <MimiQ/QuantumCircuitMPI.h>
-#include <MimiQ/QuantumGates.h>
+#include <MaQrel/QuantumCircuitMPI.h>
+#include <MaQrel/QuantumGates.h>
 using namespace std;
 
 QuantumCircuitMPI::QuantumCircuitMPI(int n) : QuantumCircuitBase(n) {}

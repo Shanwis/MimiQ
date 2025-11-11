@@ -1,4 +1,4 @@
-# MimiQ: A Quantum Circuit Simulator
+# MaQrel: A Quantum Circuit Simulator
 
 [![Language](https://img.shields.io/badge/Language-C%2B%2B-blue.svg)](https://isocpp.org/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
@@ -88,8 +88,8 @@ Go to SourceForge abd install GNUPlot and add to the environment variables.
 ### Build and Run
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/Shanwis/MimiQ.git](https://github.com/Shanwis/MimiQ.git)
-    cd MimiQ
+    git clone [https://github.com/Shanwis/MaQrel.git](https://github.com/Shanwis/MaQrel.git)
+    cd MaQrel
     ```
 
 2.  **Run the make file**
@@ -101,12 +101,12 @@ Go to SourceForge abd install GNUPlot and add to the environment variables.
     ```bash
     MyQuantumApp/
     ├── include/
-    │   └── MimiQ/
+    │   └── MaQrel/
     │       ├── QuantumCircuitBase.h
     │       ├── QuantumCircuitParallel.h
     │       └── QuantumCircuitSerial.h
     ├── lib/
-    │   └── libMimiQ.a
+    │   └── libMaQrel.a
     ├── src/
     │   └── main.cpp
     └── Makefile
@@ -114,13 +114,13 @@ Go to SourceForge abd install GNUPlot and add to the environment variables.
     When compiling main.cpp (or any other files)
 
     ```bash
-    g++ -fopenmp src/main.cpp -Iinclude -Llib -lMimiQ -o Output
+    g++ -fopenmp src/main.cpp -Iinclude -Llib -lMaQrel -o Output
     ```
 
     use mpic++ if including the QuantumCircuitMPI.h file as well
 
     ```bash
-    mpic++ -fopenmp src/main.cpp -Iinclude -Llib -lMimiQ -o Output
+    mpic++ -fopenmp src/main.cpp -Iinclude -Llib -lMaQrel -o Output
     ```
 
     To run the interative CLI we made for seeing the library in action:
@@ -258,7 +258,7 @@ Here's how to create the famous entangled Bell state $\frac{1}{\sqrt{2}}(|00\ran
 
 7. Choose option **7. Display heat map representation** The output will show a heat map representation of the probabilities associated with the states.
 
-    ![Heat map representation for bell state](./photos/heatmaprepbellstateMimiQ.png)
+    ![Heat map representation for bell state](./photos/heatmaprepbellstateMaQrel.png)
 
 8. Choose option **3. Measure Circuit(Collapses)** the system collapses to a single state.
 
@@ -331,7 +331,7 @@ Speedup: 3.03527x
 compile using
 
 ```bash
-g++ -fopenmp main.cpp -Iinclude -Llib -lMimiQ -o parallel_sim
+g++ -fopenmp main.cpp -Iinclude -Llib -lMaQrel -o parallel_sim
 ```
 
 ### Distributed Class: `QuantumCircuitMPI`
@@ -342,7 +342,7 @@ g++ -fopenmp main.cpp -Iinclude -Llib -lMimiQ -o parallel_sim
 compile using
 
 ```bash
-mpic++ main.cpp -Iinclude -Llib -lMimiQ -o mpi_sim
+mpic++ main.cpp -Iinclude -Llib -lMaQrel -o mpi_sim
 ```
 to run across processes:
 ```bash
@@ -352,7 +352,7 @@ mpirun -np 4 ./mpi_sim
 ## Project Structure
 
 ```bash
-MimiQ/
+MaQrel/
 ├── examples
 │   ├── bellstate.cpp
 │   ├── MPI_test.cpp
@@ -360,7 +360,7 @@ MimiQ/
 │   ├── SSM.cpp
 │   └── superdensecoding.cpp
 ├── include
-│   └── MimiQ
+│   └── MaQrel
 │       ├── QuantumCircuitBase.h
 │       ├── QuantumCircuitMPI.h
 │       ├── QuantumCircuitParallel.h
@@ -368,7 +368,7 @@ MimiQ/
 │       └── QuantumVisualization.h
 ├── photos
 │   ├── graphusinggnuplot.png
-│   └── heatmaprepbellstateMimiQ.png
+│   └── heatmaprepbellstateMaQrel.png
 ├── src
 │   ├── QuantumCircuitBase.cpp
 │   ├── QuantumCircuitMPI.cpp

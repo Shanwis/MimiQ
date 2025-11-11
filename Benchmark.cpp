@@ -3,8 +3,8 @@
 #include <random> 
 #include <omp.h>
 
-#include <MimiQ/QuantumCircuitParallel.h>
-#include <MimiQ/QuantumCircuitMPI.h>
+#include <MaQrel/QuantumCircuitParallel.h>
+#include <MaQrel/QuantumCircuitMPI.h>
 
 using namespace std;
 
