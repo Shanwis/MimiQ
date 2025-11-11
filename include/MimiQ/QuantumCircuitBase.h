@@ -87,7 +87,7 @@ public:
         return state_vector[qubit];
     };
 
-    double expectZ(vector<int> &q);
+    double expectZ(std::vector<int> &q);
     //Helpers for outputing results
     void printState(); //prints the entire state
     void printCircuit(); //prints the entire circuit
