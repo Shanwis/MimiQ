@@ -173,7 +173,7 @@ void QuantumCircuitBase::reset(int qubit){
     }
 }
 
-void QuantumCircuitBase::resetAll(int index = 0){
+void QuantumCircuitBase::resetAll(int qubit){
     fill(state_vector.begin(), state_vector.end(), 0.0);
     state_vector[index] = 1.0;
 }
