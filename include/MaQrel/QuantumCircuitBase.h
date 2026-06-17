@@ -7,10 +7,15 @@
 #include<string>
 #include<functional>
 
+#include "QuantumGates.h"
+
+enum SimMode { Lambda, Matrix };
+
 class QuantumCircuitBase {
 protected:
     //member var
     int qubit_count;
+    SimMode mode;
     std::vector<std::complex<double>> state_vector;
 
     //Circuit
@@ -25,15 +30,22 @@ protected:
     //For performing operations
     //for single qubit operations
     virtual void applySingleQubitOp(int target_qubit, std::function<void(std::complex<double>&,std::complex<double>&)> op);
+    //Matrix-based single qubit gate (serial)
+    virtual void applySingleQubitMatrix(int target_qubit, const GateMatrix& g);
     //For two qubit operations
     virtual void applyTwoQubitOp(int qubit_1, int qubit_2, std::function<void(std::complex<double>&,std::complex<double>&, std::complex<double>&,std::complex<double>&)> op);
     //For controlled two qubit operations
     virtual void applyControlledQubitOp(int control_qubit, int target_qubit, std::function<void(std::complex<double>&, std::complex<double>&)> op);
+    //Matrix-based controlled gate (serial)
+    virtual void applyControlledQubitMatrix(int control_qubit, int target_qubit, const GateMatrix& g);
 
 public:
     //Constructor
-    QuantumCircuitBase(int n);
+    QuantumCircuitBase(int n, SimMode m = Lambda);
     virtual ~QuantumCircuitBase() = default;
+
+    //Public wrapper to apply a 2x2 gate matrix to a single qubit
+    void applyGate(int target_qubit, const GateMatrix& g);
 
     //Public gate methods
     //Hadamard Gate

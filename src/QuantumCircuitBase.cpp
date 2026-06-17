@@ -10,8 +10,8 @@
 using namespace std;
 
 // Constructor with member initializer list
-QuantumCircuitBase::QuantumCircuitBase(int n) :
-    qubit_count(n)
+QuantumCircuitBase::QuantumCircuitBase(int n, SimMode m) :
+    qubit_count(n), mode(m)
 {
     if(n<=0) {
         throw invalid_argument("Number of qubits must be positive.");
@@ -344,131 +344,255 @@ void QuantumCircuitBase::applyControlledQubitOp(int control_qubit, int target_qu
     }
 }
 
+void QuantumCircuitBase::applySingleQubitMatrix(int target_qubit, const GateMatrix& g){
+    if(target_qubit<0 || target_qubit>=qubit_count)
+        throw out_of_range("Target qubit is out of range");
+
+    size_t stride = 1ULL << target_qubit;
+    size_t num_blocks = state_vector.size() >> (target_qubit + 1);
+    size_t block_size = stride << 1;
+
+    for(size_t block=0; block<num_blocks; block++){
+        size_t base = block * block_size;
+        for(size_t j=0; j<stride; j++){
+            size_t i0 = base + j;
+            size_t i1 = i0 + stride;
+            complex<double> a = state_vector[i0];
+            complex<double> b = state_vector[i1];
+            state_vector[i0] = g.m[0]*a + g.m[1]*b;
+            state_vector[i1] = g.m[2]*a + g.m[3]*b;
+        }
+    }
+}
+
+void QuantumCircuitBase::applyControlledQubitMatrix(int control_qubit, int target_qubit, const GateMatrix& g){
+    if(control_qubit >= qubit_count || control_qubit < 0 ||
+       target_qubit >= qubit_count || target_qubit < 0)
+        throw out_of_range("Qubits out of range.");
+    if(control_qubit == target_qubit)
+        throw invalid_argument("Control and target qubits cannot be the same.");
+
+    size_t control_mask = 1ULL << control_qubit;
+    size_t stride = 1ULL << target_qubit;
+    size_t num_blocks = state_vector.size() >> (target_qubit + 1);
+    size_t block_size = stride << 1;
+
+    for(size_t block=0; block<num_blocks; block++){
+        size_t base = block * block_size;
+        for(size_t j=0; j<stride; j++){
+            size_t i0 = base + j;
+            size_t i1 = i0 + stride;
+            if((i0 & control_mask) != 0){
+                complex<double> a = state_vector[i0];
+                complex<double> b = state_vector[i1];
+                state_vector[i0] = g.m[0]*a + g.m[1]*b;
+                state_vector[i1] = g.m[2]*a + g.m[3]*b;
+            }
+        }
+    }
+}
+
+void QuantumCircuitBase::applyGate(int target_qubit, const GateMatrix& g){
+    applySingleQubitMatrix(target_qubit, g);
+}
+
 //Type 1: Pauli Gates
 
 void QuantumCircuitBase::X(int target_qubit) {
-    applySingleQubitOp(target_qubit,QuantumGates::X_Function());
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::X());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::X_Function());
     addCircuit(target_qubit, "X");
 }
 
 void QuantumCircuitBase::Y(int target_qubit){
-    applySingleQubitOp(target_qubit,QuantumGates::Y_Function());
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::Y());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Y_Function());
     addCircuit(target_qubit, "Y");
 }
 
 void QuantumCircuitBase::Z(int target_qubit){
-    applySingleQubitOp(target_qubit,QuantumGates::Z_Function());
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::Z());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Z_Function());
     addCircuit(target_qubit, "Z");
 }
 
 //Type 2: Superposition Gate
 
 void QuantumCircuitBase::H(int target_qubit){
-    applySingleQubitOp(target_qubit,QuantumGates::H_Function());
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::H());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::H_Function());
     addCircuit(target_qubit, "H");
 }
 
 //Type 3: Phase Gate 
 
 void QuantumCircuitBase::S(int target_qubit){
-    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(QuantumGates::I));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::S());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(QuantumGates::I));
     addCircuit(target_qubit, "S");
 }
 
 void QuantumCircuitBase::Sdg(int target_qubit){
-    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(-1.0 * QuantumGates::I));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::Sdg());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(-1.0 * QuantumGates::I));
     addCircuit(target_qubit, "S");
 }
 
 void QuantumCircuitBase::T(int target_qubit) {
-    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, M_PI / 4.0)));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::T());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, M_PI / 4.0)));
     addCircuit(target_qubit, "T");
 }
 
 void QuantumCircuitBase::Tdg(int target_qubit) {
-    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, -M_PI / 4.0)));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::Tdg());
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0, -M_PI / 4.0)));
     addCircuit(target_qubit, "Tdg");
 }
 
 void QuantumCircuitBase::P(int target_qubit, const double theta){
-    applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0,theta)));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::P(theta));
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Phase_Function(polar(1.0,theta)));
     addCircuit(target_qubit, "P");
 }
 
 void QuantumCircuitBase::Rz(int target_qubit, const double theta){
-    applySingleQubitOp(target_qubit,QuantumGates::Rz_Function(theta));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::Rz(theta));
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Rz_Function(theta));
     addCircuit(target_qubit,"Rz("+to_string(theta)+")");
 }
 
 void QuantumCircuitBase::Rx(int target_qubit, const double theta){
-    applySingleQubitOp(target_qubit,QuantumGates::Rx_Function(theta));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::Rx(theta));
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Rx_Function(theta));
     addCircuit(target_qubit,"Rx("+to_string(theta)+")");
 }
 
 void QuantumCircuitBase::Ry(int target_qubit, const double theta){
-    applySingleQubitOp(target_qubit,QuantumGates::Ry_Function(theta));
+    if(mode == Matrix)
+        applySingleQubitMatrix(target_qubit, GateMatrices::Ry(theta));
+    else
+        applySingleQubitOp(target_qubit,QuantumGates::Ry_Function(theta));
     addCircuit(target_qubit,"Ry("+to_string(theta)+")");
 }
 
 //Type 4: Entangling gate
 
 void QuantumCircuitBase::CX(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::X_Function());
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::X());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::X_Function());
     addCircuit(control_qubit, "C", target_qubit, "X");
 }
 
 void QuantumCircuitBase::CY(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Y_Function());
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::Y());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Y_Function());
     addCircuit(control_qubit, "C", target_qubit, "Y");
 }
 
 void QuantumCircuitBase::CZ(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Z_Function());
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::Z());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Z_Function());
     addCircuit(control_qubit, "C", target_qubit, "Z");
 }
 
 void QuantumCircuitBase::CH(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::H_Function());
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::H());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::H_Function());
     addCircuit(control_qubit, "C", target_qubit, "H");
 }
 
 void QuantumCircuitBase::CS(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(QuantumGates::I));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::S());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(QuantumGates::I));
     addCircuit(control_qubit, "C", target_qubit, "S");
 }
 
 void QuantumCircuitBase::CSdg(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(-1.0*QuantumGates::I));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::Sdg());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(-1.0*QuantumGates::I));
     addCircuit(control_qubit, "C", target_qubit, "Sdg");
 }
 
 void QuantumCircuitBase::CT(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,M_PI/4.0)));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::T());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,M_PI/4.0)));
     addCircuit(control_qubit, "C", target_qubit, "T");
 }
 
 void QuantumCircuitBase::CTdg(int control_qubit, int target_qubit){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,-M_PI/4.0)));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::Tdg());
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,-M_PI/4.0)));
     addCircuit(control_qubit, "C", target_qubit, "Tdg");
 }
 
 void QuantumCircuitBase::CP(int control_qubit, int target_qubit,const double theta){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,theta)));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::P(theta));
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Phase_Function(polar(1.0,theta)));
     addCircuit(control_qubit, "C", target_qubit, "P("+to_string(theta)+")");
 }
 
 void QuantumCircuitBase::CRz(int control_qubit, int target_qubit, const double theta){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Rz_Function(theta));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::Rz(theta));
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Rz_Function(theta));
     addCircuit(control_qubit, "C", target_qubit, "Rz("+to_string(theta)+")");
 }
 
 void QuantumCircuitBase::CRx(int control_qubit, int target_qubit, const double theta){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Rx_Function(theta));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::Rx(theta));
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Rx_Function(theta));
     addCircuit(control_qubit, "C", target_qubit, "Rx("+to_string(theta)+")");
 }
 
 void QuantumCircuitBase::CRy(int control_qubit, int target_qubit, const double theta){
-    applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Ry_Function(theta));
+    if(mode == Matrix)
+        applyControlledQubitMatrix(control_qubit, target_qubit, GateMatrices::Ry(theta));
+    else
+        applyControlledQubitOp(control_qubit,target_qubit, QuantumGates::Ry_Function(theta));
     addCircuit(control_qubit, "C", target_qubit, "Ry("+to_string(theta)+")");
 }
 
